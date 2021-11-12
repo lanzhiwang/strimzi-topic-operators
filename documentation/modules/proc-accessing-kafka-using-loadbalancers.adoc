@@ -1,0 +1,68 @@
+// Module included in the following assemblies:
+//
+// assembly-configuring-kafka-listeners.adoc
+
+[id='proc-accessing-kafka-using-loadbalancers-{context}']
+= Accessing Kafka using loadbalancers
+
+.Prerequisites
+
+* A Kubernetes cluster
+* A running Cluster Operator
+
+.Procedure
+
+. Deploy Kafka cluster with an external listener enabled and configured to the type `loadbalancer`.
++
+An example configuration with an external listener configured to use loadbalancers:
++
+[source,yaml,subs=attributes+]
+----
+apiVersion: {KafkaApiVersion}
+kind: Kafka
+spec:
+  kafka:
+    # ...
+    listeners:
+      external:
+        type: loadbalancer
+        authentication:
+          type: tls
+        # ...
+    # ...
+  zookeeper:
+    # ...
+----
+
+. Create or update the resource.
++
+This can be done using `kubectl apply`:
+[source,shell,subs=+quotes]
+kubectl apply -f _your-file_
+
+. Find the hostname of the bootstrap loadbalancer.
++
+This can be done using `kubectl get`:
+[source,shell,subs=+quotes]
+kubectl get service _cluster-name_-kafka-external-bootstrap -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}{"\n"}'
++
+If no hostname was found (nothing was returned by the command), use the loadbalancer IP address.
++
+This can be done using `kubectl get`:
+[source,shell,subs=+quotes]
+kubectl get service _cluster-name_-kafka-external-bootstrap -o=jsonpath='{.status.loadBalancer.ingress[0].ip}{"\n"}'
++
+Use the hostname or IP address together with port 9094 in your Kafka client as the _bootstrap_ address.
+
+. Unless TLS encryption was disabled, extract the public certificate of the broker certification authority.
++
+This can be done using `kubectl get`:
++
+[source,shell,subs=+quotes]
+kubectl get secret _cluster-name_-cluster-ca-cert -o jsonpath='{.data.ca\.crt}' | base64 -d > ca.crt
++
+Use the extracted certificate in your Kafka client to configure TLS connection.
+If you enabled any authentication, you will also need to configure SASL or TLS authentication.
+
+.Additional resources
+* For more information about the schema, see xref:type-KafkaListeners-reference[`KafkaListeners` schema reference].

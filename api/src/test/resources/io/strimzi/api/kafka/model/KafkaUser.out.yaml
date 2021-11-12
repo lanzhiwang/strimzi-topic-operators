@@ -1,0 +1,37 @@
+---
+apiVersion: "kafka.strimzi.io/v1beta1"
+kind: "KafkaUser"
+metadata:
+  name: "my-user"
+spec:
+  authentication:
+    type: "tls"
+  authorization:
+    type: "simple"
+    acls:
+    - type: "allow"
+      resource:
+        type: "topic"
+        name: "my-topic"
+        patternType: "prefix"
+      host: "*"
+      operation: "Read"
+    - type: "allow"
+      resource:
+        type: "topic"
+        name: "my"
+        patternType: "prefix"
+      host: "127.0.0.1"
+      operation: "Read"
+    - type: "allow"
+      resource:
+        type: "group"
+        name: "my-group"
+        patternType: "literal"
+      host: "127.0.0.1"
+      operation: "Read"
+    - type: "allow"
+      resource:
+        type: "cluster"
+      host: "*"
+      operation: "Read"

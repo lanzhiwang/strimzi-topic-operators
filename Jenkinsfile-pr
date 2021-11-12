@@ -1,0 +1,168 @@
+#!/usr/bin/env groovy
+
+def lib
+def NODE_LABEL = null
+
+node('master') {
+    stage('Set agent label') {
+        echo "Github PR comment: ${env.ghprbCommentBody}"
+        if (env.ghprbCommentBody.contains('crc') || env.ghprbCommentBody.contains('ocp4')) {
+            NODE_LABEL = "strimzi-crc"
+        } else {
+            NODE_LABEL = 'strimzi-pr'
+        }
+    }
+}
+
+pipeline {
+    agent {
+        node {
+            label "${NODE_LABEL}"
+        }
+    }
+    parameters {
+        string(name: 'TEST_CASE', defaultValue: '*ST', description: 'maven parameter for executing specific tests')
+        string(name: 'TEST_PROFILE', defaultValue: 'acceptance', description: 'maven parameter for executing specific test profile')
+        string(name: 'EXCLUDE', defaultValue: 'networkpolicies', description: 'maven parameter for exclude specific test tag')
+    }
+    options {
+        timeout(time: 22, unit: 'HOURS')
+        ansiColor('xterm')
+    }
+    environment {
+        ARTIFACTS_DIR = 'systemtest/target/logs'
+        JOB_NAME_SUB = "${String.format("%.15s", JOB_NAME).toLowerCase()}"
+        ORIGIN_BASE_DIR = "${env.WORKSPACE}/origin/"
+        KUBE_CONFIG_PATH = "${env.WORKSPACE}/origin/kube-apiserver/admin.kubeconfig"
+        TEST_CLUSTER_ADMIN = "admin"
+        OPERATOR_IMAGE_PULL_POLICY = "IfNotPresent"
+        COMPONENTS_IMAGE_PULL_POLICY = "IfNotPresent"
+    }
+    stages {
+        stage('Clean WS') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout Strimzi') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Parse parameters from comment') {
+            steps {
+                script {
+                    echo "Comment body: ${env.ghprbCommentBody}"
+                    env.TEST_CASE = params.TEST_CASE
+                    env.TEST_PROFILE = params.TEST_PROFILE
+                    env.EXCLUDE_GROUPS = params.EXCLUDE
+                    env.OC_VERSION = NODE_LABEL == 'strimzi-crc' ? "4" : "3"
+                    if (env.ghprbCommentBody.contains('testcase=')) {
+                        env.TEST_CASE = env.ghprbCommentBody.split('testcase=')[1].split(/\s/)[0]
+                    }
+                    echo "TEST_CASE: ${env.TEST_CASE}"
+                    if (env.ghprbCommentBody.contains('profile=')) {
+                        env.TEST_PROFILE = env.ghprbCommentBody.split('profile=')[1].split(/\s/)[0]
+                    }
+                    echo "EXCLUDE_GROUPS: ${env.EXCLUDE_GROUPS}"
+                    if (env.ghprbCommentBody.contains('exclude=')) {
+                        env.EXCLUDE_GROUPS = env.ghprbCommentBody.split('exclude=')[1].split(/\s/)[0]
+                        env.EXCLUDE_GROUPS = env.EXCLUDE_GROUPS + ",networkpolicies"
+                    }
+                    echo "TEST_PROFILE: ${env.TEST_PROFILE}"
+                    if (env.ghprbCommentBody.contains('test_only')) {
+                        env.TEST_ONLY = true
+                        env.DOCKER_REGISTRY = "docker.io"
+                        env.DOCKER_ORG="strimzi"
+                        env.DOCKER_TAG = "latest"
+                    } else {
+                        env.TEST_ONLY = false
+                        env.DOCKER_ORG="strimzi"
+                        env.DOCKER_REGISTRY = env.OC_VERSION == "3" ? "172.30.1.1:5000" : "default-route-openshift-image-registry.apps-crc.testing"
+                        env.DOCKER_TAG="pr"
+                    }
+                    env.BUILD_PROJECT_STATUS = false
+                    env.BUILD_DOCKER_IMAGE_STATUS = false
+                    echo "TEST_ONLY: ${env.TEST_ONLY}"
+                    echo "DOCKER_REGISTRY: ${env.DOCKER_REGISTRY}"
+                    echo "DOCKER_ORG: ${env.DOCKER_ORG}"
+                    echo "DOCKER_TAG: ${env.DOCKER_TAG}"
+                }
+            }
+        }
+        stage('Start Openshift') {
+            steps {
+                timeout(time: 50, unit: 'MINUTES') {
+                    script {
+                        lib = evaluate readFile('./jenkins.groovy')
+                        if (env.OC_VERSION == "3") {
+                            lib.startOrigin()
+                        } else {
+                            lib.startCRC()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Build project') {
+            steps {
+                script {
+                    withMaven(mavenOpts: '-Djansi.force=true') {
+                        sh "mvn clean install -DskipTests -Dstyle.color=always --no-transfer-progress"
+                        env.BUILD_PROJECT_STATUS = true
+                    }
+                }
+            }
+        }
+        stage('Build images') {
+            when {
+                environment name: 'TEST_ONLY', value: 'false'
+            }
+            steps {
+                script {
+                    lib.buildStrimziImages()
+                    env.BUILD_DOCKER_IMAGE_STATUS = true
+                }
+            }
+        }
+        stage('Execute system tests') {
+            steps {
+                script {
+                    catchError {
+                        if (env.OC_VERSION == "4" && !env.ghprbCommentBody.contains('test_only')) {
+                            env.DOCKER_REGISTRY = "image-registry.openshift-image-registry.svc:5000"
+                        }
+                        // For upgrade tests running with locally built images we need to change tag in StrimziUpgradeST.json
+                        if ("${env.TEST_PROFILE}".contains("upgrade")) {
+                            println("[INFO] Update files for upgrade procedure")
+                            sh(script: """
+                                sed -i 's#:latest#:${env.DOCKER_TAG}#g' ${env.WORKSPACE}/systemtest/src/main/resources/StrimziUpgradeST.json ${env.WORKSPACE}/install/cluster-operator/050-Deployment-strimzi-cluster-operator.yaml
+                                sed -i 's#strimzi/test-client:${env.DOCKER_TAG}#${env.DOCKER_REGISTRY}/strimzi/test-client:${env.DOCKER_TAG}#g' ${env.WORKSPACE}/systemtest/src/main/resources/StrimziUpgradeST.json
+                                sed -i 's#strimzi/#${env.DOCKER_REGISTRY}/strimzi/#g' ${env.WORKSPACE}/install/cluster-operator/050-Deployment-strimzi-cluster-operator.yaml
+                                sed -i 's#/opt/${env.DOCKER_REGISTRY}#/opt#g' ${env.WORKSPACE}/install/cluster-operator/050-Deployment-strimzi-cluster-operator.yaml
+                            """)
+                            sh(script: "cat ${env.WORKSPACE}/systemtest/src/main/resources/StrimziUpgradeST.json")
+                            sh(script: "cat ${env.WORKSPACE}/install/cluster-operator/050-Deployment-strimzi-cluster-operator.yaml")
+                        }
+                        lib.runSystemTests(env.WORKSPACE, env.TEST_CASE, env.TEST_PROFILE, env.EXCLUDE_GROUPS)
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                sh "sudo ./systemtest/scripts/results_info.sh ./systemtest/target/failsafe-reports/ ${env.TEST_CASE} ${env.TEST_PROFILE} ${env.BUILD_NUMBER} ${env.OC_VERSION}"
+                lib.postGithubPrComment("results.json")
+                lib.postAction(env.ARTIFACTS_DIR, env.ghprbPullId, env.ghprbActualCommitAuthor, env.ghprbPullTitle, env.ghprbPullLink, env.BUILD_URL, env.WORKSPACE, env.STRIMZI_MAILING_LIST)
+            }
+        }
+        failure {
+            echo "Build failed"
+            script {
+                lib.sendMail(env.STRIMZI_MAILING_LIST, "failed", env.ghprbPullId, env.ghprbActualCommitAuthor, env.ghprbPullTitle, env.ghprbPullLink, env.BUILD_URL)
+            }
+        }
+    }
+}

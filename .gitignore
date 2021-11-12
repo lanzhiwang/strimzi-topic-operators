@@ -1,0 +1,50 @@
+# Maven build targets
+**/target/*
+
+# Maven release files
+*.releaseBackup
+release.properties
+
+# Eclipse specific
+**/.project
+**/.settings/*
+**/.prefs
+**/.classpath
+/target/
+
+# IntelliJ IDEA specific
+.idea/
+*.iml
+
+# VS Code
+.factorypath
+.vscode
+
+# Velocity.log
+velocity.log
+
+# Generated docs
+documentation/html/**
+documentation/htmlnoheader/**
+documentation/**/build/**
+master.html
+
+helm-charts/strimzi-kafka-operator-*.*.*.tgz
+
+docker-images/kafka/.*.tmp
+docker-images/kafka/tmp/**
+docker-images/operator/.*.tmp
+docker-images/operator/tmp/**
+docker-images/test-client/.*.tmp
+docker-images/test-client/tmp/**
+
+
+# Connect plugin (tests)
+systemtest/*.tar.gz
+systemtest/my-plugins/
+
+# MacOS Desktop Services Store files
+**/.DS_Store
+
+# Hacking directory with different script utilities and more complex YAML examples used by developers for development and testing
+/hacking/
