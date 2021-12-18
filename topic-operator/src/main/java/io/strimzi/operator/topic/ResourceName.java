@@ -29,10 +29,7 @@ class ResourceName {
         this.name = name;
     }
 
-    /**
-     * Create a MapName from the name of the given resource
-     * @param resource
-     */
+    // new ResourceName(modifiedTopic)
     public ResourceName(HasMetadata resource) {
         this(resource.getMetadata().getName());
     }

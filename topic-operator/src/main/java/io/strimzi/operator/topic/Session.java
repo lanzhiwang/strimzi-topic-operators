@@ -141,12 +141,13 @@ public class Session extends AbstractVerticle {
     @Override
     public void start(Promise<Void> start) {
         LOGGER.info("Starting");
-        Properties adminClientProps = new Properties();
 
         String dnsCacheTtl = System.getenv("STRIMZI_DNS_CACHE_TTL") == null ? "30" : System.getenv("STRIMZI_DNS_CACHE_TTL");
         Security.setProperty("networkaddress.cache.ttl", dnsCacheTtl);
-        adminClientProps.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get(Config.KAFKA_BOOTSTRAP_SERVERS));
 
+        //
+        Properties adminClientProps = new Properties();
+        adminClientProps.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get(Config.KAFKA_BOOTSTRAP_SERVERS));
         if (Boolean.valueOf(config.get(Config.TLS_ENABLED))) {
             adminClientProps.setProperty(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
             adminClientProps.setProperty(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.get(Config.TLS_TRUSTSTORE_LOCATION));
@@ -155,54 +156,87 @@ public class Session extends AbstractVerticle {
             adminClientProps.setProperty(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, config.get(Config.TLS_KEYSTORE_PASSWORD));
             adminClientProps.setProperty(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, config.get(Config.TLS_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM));
         }
-
         this.adminClient = AdminClient.create(adminClientProps);
+        // Using AdminClient org.apache.kafka.clients.admin.KafkaAdminClient@496fd44e
         LOGGER.debug("Using AdminClient {}", adminClient);
         this.kafka = new KafkaImpl(adminClient, vertx);
+        // Using Kafka io.strimzi.operator.topic.KafkaImpl@5bd2f23f
         LOGGER.debug("Using Kafka {}", kafka);
-        Labels labels = config.get(Config.LABELS);
 
+        //
+        Labels labels = config.get(Config.LABELS);
         String namespace = config.get(Config.NAMESPACE);
+        // Using namespace hz-kafka
         LOGGER.debug("Using namespace {}", namespace);
         this.k8s = new K8sImpl(vertx, kubeClient, labels, namespace);
+        // Using k8s io.strimzi.operator.topic.K8sImpl@50d7cb3f
         LOGGER.debug("Using k8s {}", k8s);
 
-        Zk.create(vertx, config.get(Config.ZOOKEEPER_CONNECT),
-                this.config.get(Config.ZOOKEEPER_SESSION_TIMEOUT_MS).intValue(),
-                this.config.get(Config.ZOOKEEPER_CONNECTION_TIMEOUT_MS).intValue(),
+        Zk.create(
+            vertx, config.get(Config.ZOOKEEPER_CONNECT),
+            this.config.get(Config.ZOOKEEPER_SESSION_TIMEOUT_MS).intValue(),
+            this.config.get(Config.ZOOKEEPER_CONNECTION_TIMEOUT_MS).intValue(),
             zkResult -> {
                 if (zkResult.failed()) {
                     start.fail(zkResult.cause());
                     return;
                 }
+                //
                 this.zk = zkResult.result();
+                // Using ZooKeeper io.strimzi.operator.topic.zk.ZkImpl@55ac22e3
                 LOGGER.debug("Using ZooKeeper {}", zk);
 
+                //
                 String topicsPath = config.get(Config.TOPICS_PATH);
                 ZkTopicStore topicStore = new ZkTopicStore(zk, topicsPath);
-
+                // Using TopicStore io.strimzi.operator.topic.ZkTopicStore@2000271
                 LOGGER.debug("Using TopicStore {}", topicStore);
 
-                this.topicOperator = new TopicOperator(vertx, kafka, k8s, topicStore, labels, namespace, config, new MicrometerMetricsProvider());
+                //
+                this.topicOperator = new TopicOperator(
+                    vertx,
+                    kafka,
+                    k8s,
+                    topicStore,
+                    labels,
+                    namespace,
+                    config,
+                    new MicrometerMetricsProvider()
+                );
+                // Using Operator io.strimzi.operator.topic.TopicOperator@4ad94fc9
                 LOGGER.debug("Using Operator {}", topicOperator);
 
+                //
                 this.topicConfigsWatcher = new TopicConfigsWatcher(topicOperator);
+                // Using TopicConfigsWatcher io.strimzi.operator.topic.TopicConfigsWatcher@466b636e
                 LOGGER.debug("Using TopicConfigsWatcher {}", topicConfigsWatcher);
+
+                //
                 this.topicWatcher = new ZkTopicWatcher(topicOperator);
+                // Using TopicWatcher io.strimzi.operator.topic.ZkTopicWatcher@26f4fb91
                 LOGGER.debug("Using TopicWatcher {}", topicWatcher);
+
+                //
                 this.topicsWatcher = new ZkTopicsWatcher(topicOperator, topicConfigsWatcher, topicWatcher);
+                // Using TopicsWatcher io.strimzi.operator.topic.ZkTopicsWatcher@f30e683
                 LOGGER.debug("Using TopicsWatcher {}", topicsWatcher);
                 topicsWatcher.start(zk);
 
+                //
                 Promise<Void> promise = Promise.promise();
                 Promise<Void> initReconcilePromise = Promise.promise();
                 K8sTopicWatcher watcher = new K8sTopicWatcher(topicOperator, initReconcilePromise.future());
                 Thread resourceThread = new Thread(() -> {
                     try {
+                        // Watching KafkaTopics matching {strimzi.io/cluster=my-cluster}
                         LOGGER.debug("Watching KafkaTopics matching {}", labels.labels());
 
-                        Session.this.topicWatch = kubeClient.customResources(Crds.kafkaTopic(), KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class)
-                                .inNamespace(namespace).withLabels(labels.labels()).watch(watcher);
+                        Session.this.topicWatch = kubeClient.customResources(
+                            Crds.kafkaTopic(),
+                            KafkaTopic.class,
+                            KafkaTopicList.class,
+                            DoneableKafkaTopic.class
+                        ).inNamespace(namespace).withLabels(labels.labels()).watch(watcher);
                         LOGGER.debug("Watching setup");
 
                         // start the HTTP server for healthchecks
@@ -220,9 +254,13 @@ public class Session extends AbstractVerticle {
                 Handler<Long> periodic = new Handler<Long>() {
                     @Override
                     public void handle(Long oldTimerId) {
+                        LOGGER.info("session Starting periodic {}", oldTimerId);
+                        LOGGER.info("session Starting stopped {}", stopped);
+
                         if (!stopped) {
                             timerId = null;
                             boolean isInitialReconcile = oldTimerId == null;
+                            LOGGER.info("session Starting isInitialReconcile {}", isInitialReconcile);
                             topicOperator.reconcileAllTopics(isInitialReconcile ? "initial " : "periodic ").setHandler(result -> {
                                 topicOperator.getPeriodicReconciliationsCounter().increment();
                                 if (isInitialReconcile) {
@@ -238,7 +276,8 @@ public class Session extends AbstractVerticle {
                 periodic.handle(null);
                 promise.future().setHandler(start);
                 LOGGER.info("Started");
-            });
+            }
+        );
     }
 
     public void setupMetrics() {

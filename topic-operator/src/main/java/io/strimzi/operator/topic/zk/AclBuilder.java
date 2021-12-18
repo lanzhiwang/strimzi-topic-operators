@@ -18,18 +18,23 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 
 public class AclBuilder {
+
     public enum Permission {
         READ(ZooDefs.Perms.READ),
         WRITE(ZooDefs.Perms.WRITE),
         CREATE(ZooDefs.Perms.CREATE),
         DELETE(ZooDefs.Perms.DELETE);
+
         private final int bit;
+
         Permission(int bit) {
             this.bit = bit;
         }
+
         static int encode(Permission... permissions) {
             return encode(EnumSet.copyOf(asList(permissions)));
         }
+
         static int encode(EnumSet<Permission> permissions) {
             int bits = 0;
             for (Permission p : permissions) {
@@ -38,16 +43,18 @@ public class AclBuilder {
             return bits;
         }
     }
+
     private ACL world;
     private ACL auth;
     private Map<String, ACL> digests;
     private Map<String, ACL> hosts;
     private Map<String, ACL> ips;
 
-    public static final List<ACL> PUBLIC = Collections.singletonList(new ACL(Permission.encode(EnumSet.allOf(Permission.class)), new Id("world", "anyone")));
+    public static final List<ACL> PUBLIC = Collections.singletonList(
+        new ACL(Permission.encode(EnumSet.allOf(Permission.class)), new Id("world", "anyone"))
+    );
 
     public AclBuilder() {
-
     }
 
     public AclBuilder(List<ACL> acls) {

@@ -27,6 +27,7 @@ public class InitWriter {
     protected final static String FILE_RACK_ID = "rack.id";
     protected final static String FILE_EXTERNAL_ADDRESS = "external.address";
 
+    // InitWriter writer = new InitWriter(client, config);
     public InitWriter(KubernetesClient client, InitWriterConfig config) {
         this.client = client;
         this.config = config;
@@ -75,19 +76,38 @@ public class InitWriter {
     }
 
     /**
-     * Write provided information into a file
-     *
-     * @param file          Target file
-     * @param information   Information to be written
-     * @return              true if write succeeded, false otherwise
-     */
+    $ pwd
+    /opt/kafka/init
+
+    $ ll
+    total 4
+    drwxrwxrwx 2 root  root  30 Nov 12 15:22 ./
+    drwxr-xr-x 1 root  root 106 Nov 12 15:22 ../
+    -rw-r--r-- 1 kafka root  15 Nov 12 15:22 external.address
+
+    $ cat external.address
+    192.168.132.209
+
+    $ kubectl -n hz-kafka get pods -o wide
+    NAME                                                READY   STATUS    RESTARTS   AGE   IP           NODE              NOMINATED NODE   READINESS GATES
+    my-cluster-kafka-entity-operator-66f6ddd84c-s75hc   3/3     Running   0          22h   10.3.1.239   192.168.132.209   <none>           <none>
+    my-cluster-kafka-kafka-0                            2/2     Running   0          22h   10.3.1.234   192.168.132.209   <none>           <none>
+    my-cluster-kafka-kafka-1                            2/2     Running   2          22h   10.3.1.235   192.168.132.209   <none>           <none>
+    my-cluster-kafka-kafka-2                            2/2     Running   0          22h   10.3.1.236   192.168.132.209   <none>           <none>
+    my-cluster-kafka-zoo-entrance-6c8955b584-hgnh8      1/1     Running   0          22h   10.3.1.240   192.168.132.208   <none>           <none>
+    my-cluster-kafka-zookeeper-0                        1/1     Running   0          22h   10.3.1.231   192.168.132.209   <none>           <none>
+    my-cluster-kafka-zookeeper-1                        1/1     Running   0          22h   10.3.1.232   192.168.132.209   <none>           <none>
+    my-cluster-kafka-zookeeper-2                        1/1     Running   0          22h   10.3.1.233   192.168.132.209   <none>           <none>
+    */
+    // write(FILE_RACK_ID, rackId);
+    // write(FILE_EXTERNAL_ADDRESS, externalAddress);
     private boolean write(String file, String information) {
         boolean isWritten;
 
         try (PrintWriter writer = new PrintWriter(config.getInitFolder() + "/" + file, "UTF-8")) {
             writer.write(information);
 
-            if (writer.checkError())    {
+            if (writer.checkError()) {
                 log.error("Failed to write the information {} to file {}", information, file);
                 isWritten = false;
             } else {

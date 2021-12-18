@@ -91,6 +91,7 @@ public class ClusterOperatorConfig {
      * @param map   map from which loading configuration parameters
      * @return  Cluster Operator configuration instance
      */
+    // ClusterOperatorConfig config = ClusterOperatorConfig.fromMap(System.getenv());
     public static ClusterOperatorConfig fromMap(Map<String, String> map) {
         KafkaVersion.Lookup lookup = parseKafkaVersions(map.get(STRIMZI_KAFKA_IMAGES), map.get(STRIMZI_KAFKA_CONNECT_IMAGES), map.get(STRIMZI_KAFKA_CONNECT_S2I_IMAGES), map.get(STRIMZI_KAFKA_MIRROR_MAKER_IMAGES), map.get(STRIMZI_KAFKA_MIRROR_MAKER_2_IMAGES));
         return fromMap(map, lookup);

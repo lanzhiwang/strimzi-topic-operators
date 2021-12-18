@@ -20,22 +20,21 @@ import java.util.List;
  */
 public interface Zk {
 
-    static void create(Vertx vertx, String zkConnectionString, int sessionTimeout, int connectionTimeout,
-                              Handler<AsyncResult<Zk>> handler) {
+    static void create(Vertx vertx, String zkConnectionString, int sessionTimeout, int connectionTimeout, Handler<AsyncResult<Zk>> handler) {
         vertx.executeBlocking(f -> {
             try {
                 f.complete(createSync(vertx, zkConnectionString, sessionTimeout, connectionTimeout));
             } catch (Throwable t) {
                 f.fail(t);
             }
-        },
-                handler);
+        }, handler);
     }
 
     static Zk createSync(Vertx vertx, String zkConnectionString, int sessionTimeout, int connectionTimeout) {
-        return new ZkImpl(vertx,
-                new ZkClient(zkConnectionString, sessionTimeout, connectionTimeout,
-                        new BytesPushThroughSerializer()));
+        return new ZkImpl(
+            vertx,
+            new ZkClient(zkConnectionString, sessionTimeout, connectionTimeout, new BytesPushThroughSerializer())
+        );
     }
 
     /**

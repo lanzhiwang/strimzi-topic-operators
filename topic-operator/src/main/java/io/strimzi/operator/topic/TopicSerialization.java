@@ -74,10 +74,7 @@ class TopicSerialization {
     }
 
 
-    /**
-     * Create a Topic to reflect the given KafkaTopic resource.
-     * @throws InvalidTopicException
-     */
+    // k8sTopic = TopicSerialization.fromTopicResource(mt);
     public static Topic fromTopicResource(KafkaTopic kafkaTopic) {
         if (kafkaTopic == null) {
             return null;
@@ -211,9 +208,7 @@ class TopicSerialization {
                 new Config(entries));
     }
 
-    /**
-     * Create a Topic to reflect the given TopicMetadata.
-     */
+    // kafka.topicMetadata(topicName).map(TopicSerialization::fromTopicMetadata);
     public static Topic fromTopicMetadata(TopicMetadata meta) {
         if (meta == null) {
             return null;
@@ -259,10 +254,7 @@ class TopicSerialization {
         return baos.toByteArray();
     }
 
-    /**
-     * Returns the Topic represented by the given UTF-8 encoded JSON.
-     * This is what is stored in the znodes owned by the {@link ZkTopicStore}.
-     */
+    // fut = Future.succeededFuture(TopicSerialization.fromJson(result.result()));
     @SuppressWarnings("unchecked")
     public static Topic fromJson(byte[] json) {
         ObjectMapper mapper = objectMapper();

@@ -25,12 +25,17 @@ public class InitWriterConfig {
     private String addressType;
     private String initFolder;
 
-    /**
-     * Load configuration parameters from a related map
-     *
-     * @param map map from which loading configuration parameters
-     * @return Rack Writer configuration instance
-     */
+    // InitWriterConfig config = InitWriterConfig.fromMap(System.getenv());
+    /*
+    NODE_NAME:          (v1:spec.nodeName)
+    EXTERNAL_ADDRESS:  TRUE
+
+    spec:
+      kafka:
+        rack:
+          topologyKey: A key that matches labels assigned to the Kubernetes cluster nodes.
+                       The value of the label is used to set the broker’s broker.rack config.
+    */
     public static InitWriterConfig fromMap(Map<String, String> map) {
 
         String nodeName = map.get(InitWriterConfig.NODE_NAME);
@@ -50,7 +55,13 @@ public class InitWriterConfig {
 
         String externalAddressType = map.get(InitWriterConfig.EXTERNAL_ADDRESS_TYPE);
 
-        return new InitWriterConfig(nodeName, rackTopologyKey, externalAddress, initFolder, externalAddressType);
+        return new InitWriterConfig(
+            nodeName,
+            rackTopologyKey,
+            externalAddress,
+            initFolder,
+            externalAddressType
+        );
     }
 
     public InitWriterConfig(String nodeName, String rackTopologyKey, boolean externalAddress, String initFolder, String externalAddressType) {

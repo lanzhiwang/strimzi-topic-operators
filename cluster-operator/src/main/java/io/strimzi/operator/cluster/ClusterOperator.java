@@ -7,6 +7,8 @@ package io.strimzi.operator.cluster;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
 import io.micrometer.core.instrument.MeterRegistry;
+
+//
 import io.strimzi.operator.cluster.operator.assembly.AbstractConnectOperator;
 import io.strimzi.operator.cluster.operator.assembly.KafkaAssemblyOperator;
 import io.strimzi.operator.cluster.operator.assembly.KafkaBridgeAssemblyOperator;
@@ -14,9 +16,12 @@ import io.strimzi.operator.cluster.operator.assembly.KafkaConnectAssemblyOperato
 import io.strimzi.operator.cluster.operator.assembly.KafkaConnectS2IAssemblyOperator;
 import io.strimzi.operator.cluster.operator.assembly.KafkaMirrorMakerAssemblyOperator;
 import io.strimzi.operator.cluster.operator.assembly.KafkaRebalanceAssemblyOperator;
-import io.strimzi.operator.common.AbstractOperator;
 import io.strimzi.operator.cluster.operator.assembly.KafkaMirrorMaker2AssemblyOperator;
+
+//
+import io.strimzi.operator.common.AbstractOperator;
 import io.strimzi.operator.common.MetricsProvider;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
@@ -73,17 +78,18 @@ public class ClusterOperator extends AbstractVerticle {
     private final KafkaBridgeAssemblyOperator kafkaBridgeAssemblyOperator;
     private final KafkaRebalanceAssemblyOperator kafkaRebalanceAssemblyOperator;
 
-    public ClusterOperator(String namespace,
-                           long reconciliationInterval,
-                           KubernetesClient client,
-                           KafkaAssemblyOperator kafkaAssemblyOperator,
-                           KafkaConnectAssemblyOperator kafkaConnectAssemblyOperator,
-                           KafkaConnectS2IAssemblyOperator kafkaConnectS2IAssemblyOperator,
-                           KafkaMirrorMakerAssemblyOperator kafkaMirrorMakerAssemblyOperator,
-                           KafkaMirrorMaker2AssemblyOperator kafkaMirrorMaker2AssemblyOperator,
-                           KafkaBridgeAssemblyOperator kafkaBridgeAssemblyOperator,
-                           KafkaRebalanceAssemblyOperator kafkaRebalanceAssemblyOperator,
-                           MetricsProvider metricsProvider) {
+    public ClusterOperator(
+        String namespace,
+        long reconciliationInterval,
+        KubernetesClient client,
+        KafkaAssemblyOperator kafkaAssemblyOperator,
+        KafkaConnectAssemblyOperator kafkaConnectAssemblyOperator,
+        KafkaConnectS2IAssemblyOperator kafkaConnectS2IAssemblyOperator,
+        KafkaMirrorMakerAssemblyOperator kafkaMirrorMakerAssemblyOperator,
+        KafkaMirrorMaker2AssemblyOperator kafkaMirrorMaker2AssemblyOperator,
+        KafkaBridgeAssemblyOperator kafkaBridgeAssemblyOperator,
+        KafkaRebalanceAssemblyOperator kafkaRebalanceAssemblyOperator,
+        MetricsProvider metricsProvider) {
         log.info("Creating ClusterOperator for namespace {}", namespace);
         this.namespace = namespace;
         this.reconciliationInterval = reconciliationInterval;
@@ -108,35 +114,43 @@ public class ClusterOperator extends AbstractVerticle {
         getVertx().createSharedWorkerExecutor("kubernetes-ops-pool", 10, TimeUnit.SECONDS.toNanos(120));
 
         List<Future> watchFutures = new ArrayList<>(8);
-        List<AbstractOperator<?, ?>> operators = new ArrayList<>(asList(
-                kafkaAssemblyOperator, kafkaMirrorMakerAssemblyOperator,
-                kafkaConnectAssemblyOperator, kafkaBridgeAssemblyOperator, kafkaMirrorMaker2AssemblyOperator));
+        List<AbstractOperator<?, ?>> operators = new ArrayList<>(
+            asList(
+                kafkaAssemblyOperator,
+                kafkaMirrorMakerAssemblyOperator,
+                kafkaConnectAssemblyOperator,
+                kafkaBridgeAssemblyOperator,
+                kafkaMirrorMaker2AssemblyOperator
+            )
+        );
         if (kafkaConnectS2IAssemblyOperator != null) {
             operators.add(kafkaConnectS2IAssemblyOperator);
         }
         for (AbstractOperator<?, ?> operator : operators) {
-            watchFutures.add(operator.createWatch(namespace, operator.recreateWatch(namespace)).compose(w -> {
-                log.info("Opened watch for {} operator", operator.kind());
-                watchByKind.put(operator.kind(), w);
-                return Future.succeededFuture();
-            }));
-        }
-
-        watchFutures.add(AbstractConnectOperator.createConnectorWatch(kafkaConnectAssemblyOperator, kafkaConnectS2IAssemblyOperator, namespace));
-        watchFutures.add(kafkaRebalanceAssemblyOperator.createRebalanceWatch(namespace));
-
-        CompositeFuture.join(watchFutures)
-                .compose(f -> {
-                    log.info("Setting up periodic reconciliation for namespace {}", namespace);
-                    this.reconcileTimer = vertx.setPeriodic(this.reconciliationInterval, res2 -> {
-                        log.info("Triggering periodic reconciliation for namespace {}...", namespace);
-                        reconcileAll("timer");
-                    });
-                    return startHealthServer().map((Void) null);
+            watchFutures.add(
+                operator.createWatch(namespace, operator.recreateWatch(namespace)).compose(w -> {
+                    log.info("Opened watch for {} operator", operator.kind());
+                    watchByKind.put(operator.kind(), w);
+                    return Future.succeededFuture();
                 })
-                .setHandler(start);
-    }
+            );
+        }
+        watchFutures.add(
+            AbstractConnectOperator.createConnectorWatch(kafkaConnectAssemblyOperator, kafkaConnectS2IAssemblyOperator, namespace)
+        );
+        watchFutures.add(
+            kafkaRebalanceAssemblyOperator.createRebalanceWatch(namespace)
+        );
 
+        CompositeFuture.join(watchFutures).compose(f -> {
+            log.info("Setting up periodic reconciliation for namespace {}", namespace);
+            this.reconcileTimer = vertx.setPeriodic(this.reconciliationInterval, res2 -> {
+                log.info("Triggering periodic reconciliation for namespace {}...", namespace);
+                reconcileAll("timer");
+            });
+            return startHealthServer().map((Void) null);
+        }).setHandler(start);
+    }
 
     @Override
     public void stop(Promise<Void> stop) {

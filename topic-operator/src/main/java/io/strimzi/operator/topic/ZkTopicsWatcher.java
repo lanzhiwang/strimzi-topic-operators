@@ -32,13 +32,6 @@ class ZkTopicsWatcher {
 
     private volatile int state = 0;
 
-    /**
-     * Constructor
-     *
-     * @param topicOperator    Operator instance
-     * @param tcw   watcher for the topics config changes
-     * @param tw    watcher for the topics partitions changes
-     */
     ZkTopicsWatcher(TopicOperator topicOperator, TopicConfigsWatcher tcw, ZkTopicWatcher tw) {
         this.topicOperator = topicOperator;
         this.tcw = tcw;
@@ -57,8 +50,9 @@ class ZkTopicsWatcher {
 
     void start(Zk zk) {
         children = null;
-        tcw.start(zk);
-        tw.start(zk);
+        tcw.start(zk);  // /config/topics
+        tw.start(zk);   // /brokers/topics
+        // /brokers/topics
         zk.watchChildren(TOPICS_ZNODE, childResult -> {
             if (state == 2) {
                 zk.unwatchChildren(TOPICS_ZNODE);
@@ -69,11 +63,15 @@ class ZkTopicsWatcher {
                 return;
             }
             List<String> result = childResult.result();
+            // znode /brokers/topics now has children [my-topic1], previous children []
             LOGGER.debug("znode {} now has children {}, previous children {}", TOPICS_ZNODE, result, this.children);
+
             Set<String> deleted = new HashSet<>(this.children);
             deleted.removeAll(result);
+
             Set<String> created = new HashSet<>(result);
             created.removeAll(this.children);
+
             this.children = result;
 
             if (!deleted.isEmpty()) {
@@ -93,6 +91,7 @@ class ZkTopicsWatcher {
             }
 
             if (!created.isEmpty()) {
+                // Created topics: [my-topic1]
                 LOGGER.info("Created topics: {}", created);
                 for (String topicName : created) {
                     tcw.addChild(topicName);
@@ -107,7 +106,6 @@ class ZkTopicsWatcher {
                     });
                 }
             }
-
         }).<Void>compose(zk2 -> {
             zk.children(TOPICS_ZNODE, childResult -> {
                 if (childResult.failed()) {

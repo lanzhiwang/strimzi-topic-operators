@@ -1,0 +1,408 @@
+ls /brokers/topics
+[my-topic1]
+ls /brokers/topics/my-topic1
+[partitions]
+ls /brokers/topics/my-topic1/partitions
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+ls /brokers/topics/my-topic1/partitions/0
+[state]
+ls /brokers/topics/my-topic1/partitions/0/state
+[]
+
+get /brokers/topics
+null
+get /brokers/topics/my-topic1
+{"version":2,"partitions":{"2":[2,0,1],"5":[2,1,0],"8":[2,0,1],"7":[0,1,2],"1":[0,1,2],"4":[0,2,1],"6":[1,2,0],"0":[1,2,0],"9":[1,0,2],"3":[1,0,2]},"adding_replicas":{},"removing_replicas":{}}
+get /brokers/topics/my-topic1/partitions
+null
+get /brokers/topics/my-topic1/partitions/0
+null
+get /brokers/topics/my-topic1/partitions/0/state
+{"controller_epoch":1,"leader":1,"version":1,"leader_epoch":0,"isr":[1,2,0]}
+
+
+ls /config/topics
+[my-topic1]
+ls /config/topics/my-topic1
+[]
+
+get /config/topics
+null
+get /config/topics/my-topic1
+{"version":1,"config":{"segment.bytes":"1073741824","retention.ms":"604800000"}}
+
+
+ls /strimzi
+[topics]
+ls /strimzi/topics
+[my-topic1]
+ls /strimzi/topics/my-topic1
+[]
+
+get /strimzi
+
+get /strimzi/topics
+
+get /strimzi/topics/my-topic1
+{"map-name":"my-topic1","topic-name":"my-topic1","partitions":10,"replicas":3,"config":{"retention.ms":"604800000","segment.bytes":"1073741824"}}
+
+
+
+[root@x86-master ~]# kubectl -n hz-kafka logs -f my-cluster-entity-operator-67b967c97b-l75qj -c topic-operator
+Preparing certificates for internal communication
+Adding /etc/tls-sidecar/cluster-ca-certs/ca.crt to truststore /tmp/topic-operator/replication.truststore.p12 with alias ca
+Certificate was added to keystore
+Preparing certificates for internal communication is complete
++ shift
++ export MALLOC_ARENA_MAX=2
++ MALLOC_ARENA_MAX=2
++ JAVA_OPTS=' -Dlog4j2.configurationFile=file:/opt/topic-operator/custom-config/log4j2.properties -Dvertx.cacheDirBase=/tmp -Djava.security.egd=file:/dev/./urandom'
+++ get_gc_opts
+++ '[' false == true ']'
+++ echo ''
++ JAVA_OPTS=' -Dlog4j2.configurationFile=file:/opt/topic-operator/custom-config/log4j2.properties -Dvertx.cacheDirBase=/tmp -Djava.security.egd=file:/dev/./urandom '
++ exec /usr/bin/tini -w -e 143 -- java -Dlog4j2.configurationFile=file:/opt/topic-operator/custom-config/log4j2.properties -Dvertx.cacheDirBase=/tmp -Djava.security.egd=file:/dev/./urandom -classpath lib/io.strimzi.topic-operator-0.18.0.jar:lib/io.prometheus.simpleclient_common-0.7.0.jar:lib/io.netty.netty-handler-4.1.45.Final.jar:lib/com.101tec.zkclient-0.11.jar:lib/io.netty.netty-codec-http-4.1.45.Final.jar:lib/com.squareup.okio.okio-1.15.0.jar:lib/io.netty.netty-buffer-4.1.45.Final.jar:lib/org.yaml.snakeyaml-1.24.jar:lib/io.fabric8.openshift-client-4.6.4.jar:lib/io.netty.netty-common-4.1.45.Final.jar:lib/org.apache.logging.log4j.log4j-api-2.13.0.jar:lib/org.xerial.snappy.snappy-java-1.1.7.3.jar:lib/org.hdrhistogram.HdrHistogram-2.1.11.jar:lib/io.prometheus.simpleclient-0.7.0.jar:lib/javax.xml.bind.jaxb-api-2.3.0.jar:lib/org.apache.yetus.audience-annotations-0.5.0.jar:lib/com.fasterxml.jackson.dataformat.jackson-dataformat-yaml-2.10.2.jar:lib/javax.annotation.javax.annotation-api-1.3.2.jar:lib/io.netty.netty-codec-4.1.45.Final.jar:lib/io.micrometer.micrometer-core-1.3.1.jar:lib/jakarta.activation.jakarta.activation-api-1.2.1.jar:lib/io.vertx.vertx-core-3.8.5.jar:lib/io.strimzi.certificate-manager-0.18.0.jar:lib/io.netty.netty-codec-dns-4.1.45.Final.jar:lib/io.fabric8.kubernetes-model-4.6.4.jar:lib/io.netty.netty-codec-socks-4.1.45.Final.jar:lib/com.github.mifmif.generex-1.0.2.jar:lib/io.netty.netty-resolver-4.1.45.Final.jar:lib/com.github.luben.zstd-jni-1.4.4-7.jar:lib/io.netty.netty-handler-proxy-4.1.45.Final.jar:lib/com.squareup.okhttp3.logging-interceptor-3.12.6.jar:lib/io.strimzi.operator-common-0.18.0.jar:lib/org.lz4.lz4-java-1.7.1.jar:lib/io.netty.netty-transport-native-unix-common-4.1.45.Final.jar:lib/dk.brics.automaton.automaton-1.11-8.jar:lib/io.vertx.vertx-micrometer-metrics-3.8.5.jar:lib/org.apache.kafka.kafka-clients-2.5.0.jar:lib/com.fasterxml.jackson.core.jackson-core-2.10.2.jar:lib/org.apache.zookeeper.zookeeper-jute-3.5.7.jar:lib/io.netty.netty-transport-4.1.45.Final.jar:lib/io.netty.netty-transport-native-epoll-4.1.45.Final.jar:lib/jakarta.xml.bind.jakarta.xml.bind-api-2.3.2.jar:lib/org.apache.logging.log4j.log4j-slf4j-impl-2.13.0.jar:lib/com.fasterxml.jackson.core.jackson-annotations-2.10.2.jar:lib/io.fabric8.zjsonpatch-0.3.0.jar:lib/org.apache.zookeeper.zookeeper-3.5.7.jar:lib/io.strimzi.api-0.18.0.jar:lib/io.fabric8.kubernetes-client-4.6.4.jar:lib/com.fasterxml.jackson.module.jackson-module-jaxb-annotations-2.10.2.jar:lib/com.squareup.okhttp3.okhttp-3.12.6.jar:lib/io.netty.netty-codec-http2-4.1.45.Final.jar:lib/org.apache.logging.log4j.log4j-core-2.13.0.jar:lib/io.fabric8.kubernetes-model-common-4.6.4.jar:lib/com.fasterxml.jackson.core.jackson-databind-2.10.2.jar:lib/io.netty.netty-resolver-dns-4.1.45.Final.jar:lib/io.strimzi.crd-annotations-0.18.0.jar:lib/org.slf4j.slf4j-api-1.7.25.jar:lib/org.latencyutils.LatencyUtils-2.0.3.jar:lib/io.micrometer.micrometer-registry-prometheus-1.3.1.jar io.strimzi.operator.topic.Main
+[2021-11-17 12:27:31,482] INFO  <Main        :31> [main        ] TopicOperator 0.18.0 is starting
+[2021-11-17 12:27:32,367] INFO  <Session     :72> [main        ] Using config:
+	STRIMZI_TRUSTSTORE_LOCATION: /tmp/topic-operator/replication.truststore.p12
+	STRIMZI_RESOURCE_LABELS: strimzi.io/cluster=my-cluster
+	STRIMZI_KAFKA_BOOTSTRAP_SERVERS: my-cluster-kafka-bootstrap:9091
+	STRIMZI_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: HTTPS
+	STRIMZI_NAMESPACE: hz-kafka
+	STRIMZI_ZOOKEEPER_SESSION_TIMEOUT_MS: 20000
+	STRIMZI_TOPICS_PATH: /strimzi/topics
+	STRIMZI_FULL_RECONCILIATION_INTERVAL_MS: 90000
+	STRIMZI_ZOOKEEPER_CONNECT: localhost:2181
+	STRIMZI_TLS_ENABLED: true
+	STRIMZI_KEYSTORE_PASSWORD: ********
+	STRIMZI_TOPIC_METADATA_MAX_ATTEMPTS: 6
+	STRIMZI_REASSIGN_VERIFY_INTERVAL_MS: 120000
+	STRIMZI_KEYSTORE_LOCATION: /tmp/topic-operator/replication.keystore.p12
+	TC_ZK_CONNECTION_TIMEOUT_MS: 20000
+	STRIMZI_TRUSTSTORE_PASSWORD: ********
+	STRIMZI_REASSIGN_THROTTLE: 9223372036854775807
+
+[2021-11-17 12:27:32,461] INFO  <Session     :141> [oop-thread-0] Starting
+[2021-11-17 12:27:32,481] INFO  <ClientConfig:347> [oop-thread-0] AdminClientConfig values:
+	bootstrap.servers = [my-cluster-kafka-bootstrap:9091]
+	client.dns.lookup = default
+	client.id =
+	connections.max.idle.ms = 300000
+	default.api.timeout.ms = 60000
+	metadata.max.age.ms = 300000
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retries = 2147483647
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.mechanism = GSSAPI
+	security.protocol = SSL
+	security.providers = null
+	send.buffer.bytes = 131072
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2]
+	ssl.endpoint.identification.algorithm = HTTPS
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.location = /tmp/topic-operator/replication.keystore.p12
+	ssl.keystore.password = [hidden]
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.2
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.location = /tmp/topic-operator/replication.truststore.p12
+	ssl.truststore.password = [hidden]
+	ssl.truststore.type = JKS
+
+[2021-11-17 12:27:32,696] WARN  <ClientConfig:355> [oop-thread-0] The configuration 'ssl.truststore.location' was supplied but isn't a known config.
+[2021-11-17 12:27:32,696] WARN  <ClientConfig:355> [oop-thread-0] The configuration 'ssl.keystore.password' was supplied but isn't a known config.
+[2021-11-17 12:27:32,696] WARN  <ClientConfig:355> [oop-thread-0] The configuration 'ssl.keystore.location' was supplied but isn't a known config.
+[2021-11-17 12:27:32,696] WARN  <ClientConfig:355> [oop-thread-0] The configuration 'ssl.truststore.password' was supplied but isn't a known config.
+[2021-11-17 12:27:32,696] WARN  <ClientConfig:355> [oop-thread-0] The configuration 'ssl.endpoint.identification.algorithm' was supplied but isn't a known config.
+[2021-11-17 12:27:32,698] INFO  <ppInfoParser:117> [oop-thread-0] Kafka version: 2.5.0
+[2021-11-17 12:27:32,698] INFO  <ppInfoParser:118> [oop-thread-0] Kafka commitId: 66563e712b0b9f84
+[2021-11-17 12:27:32,699] INFO  <ppInfoParser:119> [oop-thread-0] Kafka startTimeMs: 1637152052696
+
+
+[2021-11-17 12:27:32,700] INFO  <Session     :158> [oop-thread-0] Using AdminClient org.apache.kafka.clients.admin.KafkaAdminClient@2d870316
+[2021-11-17 12:27:32,702] INFO  <Session     :160> [oop-thread-0] Using Kafka io.strimzi.operator.topic.KafkaImpl@435f60c1
+[2021-11-17 12:27:32,702] INFO  <Session     :164> [oop-thread-0] Using namespace hz-kafka
+[2021-11-17 12:27:32,797] INFO  <Session     :166> [oop-thread-0] Using k8s io.strimzi.operator.topic.K8sImpl@7c08b5e
+
+
+[2021-11-17 12:27:32,864] INFO  <kEventThread:65> [calhost:2181] Starting ZkClient event thread.
+[2021-11-17 12:27:32,871] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:zookeeper.version=3.5.7-f0fdd52973d373ffd9c86b81d99842dc2c7f660e, built on 02/10/2020 11:30 GMT
+[2021-11-17 12:27:32,872] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:host.name=my-cluster-entity-operator-67b967c97b-l75qj
+[2021-11-17 12:27:32,872] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:java.version=1.8.0_302
+[2021-11-17 12:27:32,872] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:java.vendor=Oracle Corporation
+[2021-11-17 12:27:32,872] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:java.home=/usr/local/openjdk-8/jre
+[2021-11-17 12:27:32,872] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:java.class.path=lib/io.strimzi.topic-operator-0.18.0.jar:lib/io.prometheus.simpleclient_common-0.7.0.jar:lib/io.netty.netty-handler-4.1.45.Final.jar:lib/com.101tec.zkclient-0.11.jar:lib/io.netty.netty-codec-http-4.1.45.Final.jar:lib/com.squareup.okio.okio-1.15.0.jar:lib/io.netty.netty-buffer-4.1.45.Final.jar:lib/org.yaml.snakeyaml-1.24.jar:lib/io.fabric8.openshift-client-4.6.4.jar:lib/io.netty.netty-common-4.1.45.Final.jar:lib/org.apache.logging.log4j.log4j-api-2.13.0.jar:lib/org.xerial.snappy.snappy-java-1.1.7.3.jar:lib/org.hdrhistogram.HdrHistogram-2.1.11.jar:lib/io.prometheus.simpleclient-0.7.0.jar:lib/javax.xml.bind.jaxb-api-2.3.0.jar:lib/org.apache.yetus.audience-annotations-0.5.0.jar:lib/com.fasterxml.jackson.dataformat.jackson-dataformat-yaml-2.10.2.jar:lib/javax.annotation.javax.annotation-api-1.3.2.jar:lib/io.netty.netty-codec-4.1.45.Final.jar:lib/io.micrometer.micrometer-core-1.3.1.jar:lib/jakarta.activation.jakarta.activation-api-1.2.1.jar:lib/io.vertx.vertx-core-3.8.5.jar:lib/io.strimzi.certificate-manager-0.18.0.jar:lib/io.netty.netty-codec-dns-4.1.45.Final.jar:lib/io.fabric8.kubernetes-model-4.6.4.jar:lib/io.netty.netty-codec-socks-4.1.45.Final.jar:lib/com.github.mifmif.generex-1.0.2.jar:lib/io.netty.netty-resolver-4.1.45.Final.jar:lib/com.github.luben.zstd-jni-1.4.4-7.jar:lib/io.netty.netty-handler-proxy-4.1.45.Final.jar:lib/com.squareup.okhttp3.logging-interceptor-3.12.6.jar:lib/io.strimzi.operator-common-0.18.0.jar:lib/org.lz4.lz4-java-1.7.1.jar:lib/io.netty.netty-transport-native-unix-common-4.1.45.Final.jar:lib/dk.brics.automaton.automaton-1.11-8.jar:lib/io.vertx.vertx-micrometer-metrics-3.8.5.jar:lib/org.apache.kafka.kafka-clients-2.5.0.jar:lib/com.fasterxml.jackson.core.jackson-core-2.10.2.jar:lib/org.apache.zookeeper.zookeeper-jute-3.5.7.jar:lib/io.netty.netty-transport-4.1.45.Final.jar:lib/io.netty.netty-transport-native-epoll-4.1.45.Final.jar:lib/jakarta.xml.bind.jakarta.xml.bind-api-2.3.2.jar:lib/org.apache.logging.log4j.log4j-slf4j-impl-2.13.0.jar:lib/com.fasterxml.jackson.core.jackson-annotations-2.10.2.jar:lib/io.fabric8.zjsonpatch-0.3.0.jar:lib/org.apache.zookeeper.zookeeper-3.5.7.jar:lib/io.strimzi.api-0.18.0.jar:lib/io.fabric8.kubernetes-client-4.6.4.jar:lib/com.fasterxml.jackson.module.jackson-module-jaxb-annotations-2.10.2.jar:lib/com.squareup.okhttp3.okhttp-3.12.6.jar:lib/io.netty.netty-codec-http2-4.1.45.Final.jar:lib/org.apache.logging.log4j.log4j-core-2.13.0.jar:lib/io.fabric8.kubernetes-model-common-4.6.4.jar:lib/com.fasterxml.jackson.core.jackson-databind-2.10.2.jar:lib/io.netty.netty-resolver-dns-4.1.45.Final.jar:lib/io.strimzi.crd-annotations-0.18.0.jar:lib/org.slf4j.slf4j-api-1.7.25.jar:lib/org.latencyutils.LatencyUtils-2.0.3.jar:lib/io.micrometer.micrometer-registry-prometheus-1.3.1.jar
+[2021-11-17 12:27:32,873] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:java.library.path=/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+[2021-11-17 12:27:32,873] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:java.io.tmpdir=/tmp
+[2021-11-17 12:27:32,873] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:java.compiler=<NA>
+[2021-11-17 12:27:32,873] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:os.name=Linux
+[2021-11-17 12:27:32,873] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:os.arch=amd64
+[2021-11-17 12:27:32,874] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:os.version=3.10.0-1127.el7.x86_64
+[2021-11-17 12:27:32,881] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:user.name=strimzi
+[2021-11-17 12:27:32,881] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:user.home=/home/strimzi
+[2021-11-17 12:27:32,881] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:user.dir=/opt/strimzi
+[2021-11-17 12:27:32,882] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:os.memory.free=209MB
+[2021-11-17 12:27:32,882] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:os.memory.max=3597MB
+[2021-11-17 12:27:32,882] INFO  <ZooKeeper   :109> [ker-thread-0] Client environment:os.memory.total=226MB
+[2021-11-17 12:27:32,885] INFO  <ZooKeeper   :868> [ker-thread-0] Initiating client connection, connectString=localhost:2181 sessionTimeout=20000 watcher=org.I0Itec.zkclient.ZkClient@6016e472
+[2021-11-17 12:27:32,890] INFO  <X509Util    :79> [ker-thread-0] Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+[2021-11-17 12:27:32,897] INFO  <ntCnxnSocket:237> [ker-thread-0] jute.maxbuffer value is 4194304 Bytes
+[2021-11-17 12:27:32,906] INFO  <ClientCnxn  :1653> [ker-thread-0] zookeeper.request.timeout value is 0. feature enabled=
+[2021-11-17 12:27:32,907] INFO  <ZkClient    :936> [ker-thread-0] Waiting for keeper state SyncConnected
+[2021-11-17 12:27:32,915] INFO  <ClientCnxn  :1112> [alhost:2181)] Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+[2021-11-17 12:27:32,917] INFO  <ClientCnxn  :959> [alhost:2181)] Socket connection established, initiating session, client: /127.0.0.1:46768, server: localhost/127.0.0.1:2181
+[2021-11-17 12:27:32,979] INFO  <ClientCnxn  :1394> [alhost:2181)] Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x2000c2cfc4d0002, negotiated timeout = 20000
+[2021-11-17 12:27:32,981] INFO  <ZkClient    :713> [-EventThread] zookeeper state changed (SyncConnected)
+
+
+[2021-11-17 12:27:32,989] INFO  <Session     :177> [oop-thread-0] Using ZooKeeper io.strimzi.operator.topic.zk.ZkImpl@21103b30
+[2021-11-17 12:27:33,006] INFO  <Session     :182> [oop-thread-0] Using TopicStore io.strimzi.operator.topic.ZkTopicStore@7d40747e
+[2021-11-17 12:27:33,019] INFO  <Session     :185> [oop-thread-0] Using Operator io.strimzi.operator.topic.TopicOperator@aec0b85
+[2021-11-17 12:27:33,020] INFO  <Session     :188> [oop-thread-0] Using TopicConfigsWatcher io.strimzi.operator.topic.TopicConfigsWatcher@75d592d5
+[2021-11-17 12:27:33,020] INFO  <Session     :190> [oop-thread-0] Using TopicWatcher io.strimzi.operator.topic.ZkTopicWatcher@7d1363df
+[2021-11-17 12:27:33,021] INFO  <Session     :192> [oop-thread-0] Using TopicsWatcher io.strimzi.operator.topic.ZkTopicsWatcher@15c02e45
+
+zk watch
+[2021-11-17 12:27:33,173] INFO  <ZkImpl      :33> [oop-thread-0] watchChildren returned Future{result=null}
+[2021-11-17 12:27:33,229] INFO  <opicsWatcher:118> [oop-thread-0] Setting initial children []
+
+
+k8s watch
+
+[2021-11-17 12:27:33,026] INFO  <Session     :214> [oop-thread-0] Starting Thread[resource-watcher,5,main]
+[2021-11-17 12:27:33,030] INFO  <Session     :200> [urce-watcher] Watching KafkaTopics matching {strimzi.io/cluster=my-cluster}
+[2021-11-17 12:27:33,904] INFO  <Session     :204> [urce-watcher] Watching setup
+
+[2021-11-17 12:27:34,240] WARN  <onUsageUtils:60> [s-ops-tool-0] The client is using resource type 'kafkatopics' with unstable version 'v1beta1'
+
+[2021-11-17 12:27:33,141] INFO  <Session     :242> [oop-thread-0] Started
+[2021-11-17 12:27:34,147] INFO  <Main        :60> [oop-thread-1] Session deployed
+
+
+定时器 watch
+[2021-11-17 12:27:33,029] INFO  <Session     :221> [oop-thread-0] session Starting periodic null
+[2021-11-17 12:27:33,033] INFO  <Session     :222> [oop-thread-0] session Starting stopped false
+[2021-11-17 12:27:33,033] INFO  <Session     :227> [oop-thread-0] session Starting isInitialReconcile true
+[2021-11-17 12:27:33,033] INFO  <opicOperator:1213> [oop-thread-0] Starting initial  reconciliation
+[2021-11-17 12:27:33,033] INFO  <KafkaImpl   :121> [oop-thread-0] Listing topics
+[2021-11-17 12:27:34,233] INFO  <opicOperator:1289> [oop-thread-1] Reconciling kafka topics []
+
+[2021-11-17 12:29:04,566] INFO  <Session     :221> [oop-thread-1] session Starting periodic 0
+[2021-11-17 12:29:04,568] INFO  <Session     :222> [oop-thread-1] session Starting stopped false
+[2021-11-17 12:29:04,568] INFO  <Session     :227> [oop-thread-1] session Starting isInitialReconcile false
+[2021-11-17 12:29:04,569] INFO  <opicOperator:1213> [oop-thread-1] Starting periodic  reconciliation
+[2021-11-17 12:29:04,569] INFO  <KafkaImpl   :121> [oop-thread-1] Listing topics
+[2021-11-17 12:29:04,587] INFO  <opicOperator:1289> [oop-thread-0] Reconciling kafka topics []
+
+[2021-11-17 12:30:34,687] INFO  <Session     :221> [oop-thread-0] session Starting periodic 1
+[2021-11-17 12:30:34,687] INFO  <Session     :222> [oop-thread-0] session Starting stopped false
+[2021-11-17 12:30:34,688] INFO  <Session     :227> [oop-thread-0] session Starting isInitialReconcile false
+[2021-11-17 12:30:34,688] INFO  <opicOperator:1213> [oop-thread-0] Starting periodic  reconciliation
+[2021-11-17 12:30:34,688] INFO  <KafkaImpl   :121> [oop-thread-0] Listing topics
+[2021-11-17 12:30:34,698] INFO  <opicOperator:1289> [oop-thread-1] Reconciling kafka topics []
+
+[2021-11-17 12:32:04,716] INFO  <Session     :221> [oop-thread-1] session Starting periodic 2
+[2021-11-17 12:32:04,717] INFO  <Session     :222> [oop-thread-1] session Starting stopped false
+[2021-11-17 12:32:04,717] INFO  <Session     :227> [oop-thread-1] session Starting isInitialReconcile false
+[2021-11-17 12:32:04,717] INFO  <opicOperator:1213> [oop-thread-1] Starting periodic  reconciliation
+[2021-11-17 12:32:04,717] INFO  <KafkaImpl   :121> [oop-thread-1] Listing topics
+[2021-11-17 12:32:04,726] INFO  <opicOperator:1289> [oop-thread-0] Reconciling kafka topics []
+
+[2021-11-17 12:33:34,830] INFO  <Session     :221> [oop-thread-0] session Starting periodic 3
+[2021-11-17 12:33:34,831] INFO  <Session     :222> [oop-thread-0] session Starting stopped false
+[2021-11-17 12:33:34,831] INFO  <Session     :227> [oop-thread-0] session Starting isInitialReconcile false
+[2021-11-17 12:33:34,831] INFO  <opicOperator:1213> [oop-thread-0] Starting periodic  reconciliation
+[2021-11-17 12:33:34,831] INFO  <KafkaImpl   :121> [oop-thread-0] Listing topics
+[2021-11-17 12:33:34,848] INFO  <opicOperator:1289> [oop-thread-1] Reconciling kafka topics []
+
+
+///////////////////////////////////////////////////////////////////////
+
+
+[2021-11-17 02:58:34,559] INFO  <TopicWatcher:43> [10.4.0.1/...] 0|kube +my-topic1|9466112: event ADDED on resource my-topic1 generation=1, labels={strimzi.io/cluster=my-cluster}
+[2021-11-17 02:58:34,564] INFO  <opicOperator:457> [10.4.0.1/...] 0|kube +my-topic1|9466112: Queuing action onResourceEvent on topic my-topic1
+[2021-11-17 02:58:34,565] INFO  <opicOperator:460> [10.4.0.1/...] 0|kube +my-topic1|9466112: Adding first waiter onResourceEvent
+[2021-11-17 02:58:34,569] INFO  <opicOperator:469> [oop-thread-1] 0|kube +my-topic1|9466112: Lock acquired
+[2021-11-17 02:58:34,569] INFO  <opicOperator:470> [oop-thread-1] 0|kube +my-topic1|9466112: Executing action onResourceEvent on topic my-topic1
+[2021-11-17 02:58:34,579] INFO  <opicOperator:1001> [oop-thread-1] 0|kube +my-topic1|9466112: last updated generation=null
+[2021-11-17 02:58:34,580] INFO  <opicOperator:1014> [oop-thread-1] 0|kube +my-topic1|9466112: modifiedTopic.getMetadata().getGeneration()=1
+[2021-11-17 02:58:34,584] INFO  <KafkaImpl   :100> [oop-thread-1] Getting metadata for topic my-topic1
+[2021-11-17 02:58:34,613] INFO  <opicOperator:535> [oop-thread-1] 0|kube +my-topic1|9466112: Reconciling topic my-topic1, k8sTopic:nonnull, kafkaTopic:null, privateTopic:null
+[2021-11-17 02:58:34,613] INFO  <opicOperator:554> [oop-thread-1] 0|kube +my-topic1|9466112: KafkaTopic created in k8s, will create topic in kafka and topicStore
+[2021-11-17 02:58:34,614] INFO  <opicOperator:759> [oop-thread-1] Enqueuing event CreateKafkaTopic(topicName=my-topic1,ctx=0|kube +my-topic1|9466112)
+[2021-11-17 02:58:34,618] INFO  <KafkaImpl   :151> [oop-thread-1] Creating topic (name=my-topic1, numPartitions=10, replicationFactor=3, replicasAssignments=null, configs={retention.ms=604800000, segment.bytes=1073741824})
+[2021-11-17 02:58:34,851] INFO  <opicsWatcher:72> [calhost:2181] znode /brokers/topics now has children [my-topic1], previous children []
+[2021-11-17 02:58:34,851] INFO  <opicsWatcher:96> [calhost:2181] Created topics: [my-topic1]
+[2021-11-17 02:58:34,851] INFO  <nfigsWatcher:73> [calhost:2181] Watching znode /config/topics/my-topic1 for changes
+[2021-11-17 02:58:34,854] INFO  <TopicWatcher:73> [calhost:2181] Watching znode /brokers/topics/my-topic1 for changes
+[2021-11-17 02:58:34,855] INFO  <opicOperator:457> [calhost:2181] 1|/brokers/topics +my-topic1: Queuing action onTopicCreated on topic my-topic1
+[2021-11-17 02:58:34,855] INFO  <opicOperator:463> [calhost:2181] 1|/brokers/topics +my-topic1: Adding waiter onTopicCreated: 2
+[2021-11-17 02:58:36,243] INFO  <opicOperator:252> [oop-thread-1] 0|kube +my-topic1|9466112: Created topic 'my-topic1' for KafkaTopic 'my-topic1'
+[2021-11-17 02:58:36,244] INFO  <opicOperator:759> [oop-thread-1] Enqueuing event CreateInTopicStore(topicName=my-topic1,ctx=0|kube +my-topic1|9466112)
+[2021-11-17 02:58:36,244] INFO  <opicOperator:1118> [oop-thread-1] Executing CreateInTopicStore(topicName=my-topic1,ctx=0|kube +my-topic1|9466112)
+[2021-11-17 02:58:36,251] INFO  <ZkTopicStore:90> [oop-thread-1] create znode /strimzi/topics/my-topic1
+[2021-11-17 02:58:36,262] INFO  <opicOperator:1120> [oop-thread-1] Completing CreateInTopicStore(topicName=my-topic1,ctx=0|kube +my-topic1|9466112)
+[2021-11-17 02:58:36,262] INFO  <opicOperator:1125> [oop-thread-1] CreateInTopicStore(topicName=my-topic1,ctx=0|kube +my-topic1|9466112) succeeded
+[2021-11-17 02:58:36,262] INFO  <KafkaImpl   :100> [oop-thread-1] Getting metadata for topic my-topic1
+[2021-11-17 02:58:36,272] INFO  <opicOperator:561> [oop-thread-0] Post-create kafka null
+[2021-11-17 02:58:36,272] ERROR <opicOperator:563> [oop-thread-0] Post-create kafka unexpectedly null
+[2021-11-17 02:58:36,272] INFO  <opicOperator:472> [oop-thread-0] 0|kube +my-topic1|9466112: Executing handler for action onResourceEvent on topic my-topic1
+[2021-11-17 02:58:36,273] INFO  <opicOperator:947> [oop-thread-0] 0|kube +my-topic1|9466112: There is a KafkaTopic to set status on, rv=9466112, generation=1
+[2021-11-17 02:58:36,367] INFO  <TopicWatcher:43> [10.4.0.1/...] 2|kube =my-topic1|9466134: event MODIFIED on resource my-topic1 generation=1, labels={strimzi.io/cluster=my-cluster}
+[2021-11-17 02:58:36,368] INFO  <opicOperator:457> [10.4.0.1/...] 2|kube =my-topic1|9466134: Queuing action onResourceEvent on topic my-topic1
+[2021-11-17 02:58:36,368] INFO  <opicOperator:463> [10.4.0.1/...] 2|kube =my-topic1|9466134: Adding waiter onResourceEvent: 3
+[2021-11-17 02:58:36,371] INFO  <opicOperator:961> [oop-thread-0] 0|kube +my-topic1|9466112: status was set rv=9466134, generation=1, observedGeneration=1
+[2021-11-17 02:58:36,372] INFO  <TopicWatcher:47> [oop-thread-0] 0|kube +my-topic1|9466112: Success processing event ADDED on resource my-topic1 with labels {strimzi.io/cluster=my-cluster}
+[2021-11-17 02:58:36,374] INFO  <opicOperator:489> [oop-thread-0] 0|kube +my-topic1|9466112: Lock released
+[2021-11-17 02:58:36,374] INFO  <opicOperator:469> [oop-thread-1] 1|/brokers/topics +my-topic1: Lock acquired
+[2021-11-17 02:58:36,374] INFO  <opicOperator:449> [oop-thread-0] 0|kube +my-topic1|9466112: Removing waiter onResourceEvent, 2 waiters left
+[2021-11-17 02:58:36,374] INFO  <opicOperator:470> [oop-thread-1] 1|/brokers/topics +my-topic1: Executing action onTopicCreated on topic my-topic1
+[2021-11-17 02:58:36,376] INFO  <KafkaImpl   :100> [oop-thread-1] Getting metadata for topic my-topic1
+[2021-11-17 02:58:36,552] INFO  <TopicWatcher:72> [oop-thread-1] 1|/brokers/topics +my-topic1: Concurrent modification in kube: new version 9466134
+[2021-11-17 02:58:36,553] INFO  <opicOperator:535> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: Reconciling topic my-topic1, k8sTopic:nonnull, kafkaTopic:nonnull, privateTopic:nonnull
+[2021-11-17 02:58:36,553] INFO  <opicOperator:595> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: 3 way diff
+[2021-11-17 02:58:36,554] INFO  <opicOperator:670> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: topicStore->kafkaTopic: TopicDiff{differences={}}
+[2021-11-17 02:58:36,555] INFO  <opicOperator:672> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: topicStore->k8sTopic: TopicDiff{differences={}}
+[2021-11-17 02:58:36,555] INFO  <opicOperator:681> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: Diffs do not conflict, merged diff: TopicDiff{differences={}}
+[2021-11-17 02:58:36,555] INFO  <opicOperator:683> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: All three topics are identical
+[2021-11-17 02:58:36,555] INFO  <opicOperator:472> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: Executing handler for action onTopicCreated on topic my-topic1
+[2021-11-17 02:58:36,555] INFO  <opicOperator:947> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: There is a KafkaTopic to set status on, rv=9466134, generation=1
+[2021-11-17 02:58:36,563] INFO  <opicsWatcher:103> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: Success responding to creation of topic my-topic1
+[2021-11-17 02:58:36,564] INFO  <opicOperator:489> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: Lock released
+[2021-11-17 02:58:36,564] INFO  <opicOperator:449> [oop-thread-1] 1|/brokers/topics +my-topic1|9466134: Removing waiter onTopicCreated, 1 waiters left
+[2021-11-17 02:58:36,564] INFO  <opicOperator:469> [oop-thread-1] 2|kube =my-topic1|9466134: Lock acquired
+[2021-11-17 02:58:36,564] INFO  <opicOperator:470> [oop-thread-1] 2|kube =my-topic1|9466134: Executing action onResourceEvent on topic my-topic1
+[2021-11-17 02:58:36,577] INFO  <opicOperator:1001> [oop-thread-1] 2|kube =my-topic1|9466134: last updated generation=1
+[2021-11-17 02:58:36,577] INFO  <opicOperator:1009> [oop-thread-1] 2|kube =my-topic1|9466134: Ignoring modification event caused by my own status update on my-topic1
+[2021-11-17 02:58:36,578] INFO  <opicOperator:472> [oop-thread-1] 2|kube =my-topic1|9466134: Executing handler for action onResourceEvent on topic my-topic1
+[2021-11-17 02:58:36,578] INFO  <opicOperator:978> [oop-thread-1] 2|kube =my-topic1|9466134: No KafkaTopic to set status
+[2021-11-17 02:58:36,578] INFO  <TopicWatcher:47> [oop-thread-1] 2|kube =my-topic1|9466134: Success processing event MODIFIED on resource my-topic1 with labels {strimzi.io/cluster=my-cluster}
+[2021-11-17 02:58:36,578] INFO  <opicOperator:489> [oop-thread-1] 2|kube =my-topic1|9466134: Lock released
+[2021-11-17 02:58:36,579] INFO  <opicOperator:446> [oop-thread-1] 2|kube =my-topic1|9466134: Removing last waiter onResourceEvent
+[2021-11-17 02:59:02,453] INFO  <opicOperator:1213> [oop-thread-0] Starting periodic  reconciliation
+[2021-11-17 02:59:02,454] INFO  <KafkaImpl   :121> [oop-thread-0] Listing topics
+[2021-11-17 02:59:02,464] INFO  <opicOperator:1289> [oop-thread-0] Reconciling kafka topics [my-topic1]
+[2021-11-17 02:59:02,465] INFO  <opicOperator:457> [oop-thread-0] 3|periodic kafka my-topic1: Queuing action reconcile-from-kafka on topic my-topic1
+[2021-11-17 02:59:02,465] INFO  <opicOperator:460> [oop-thread-0] 3|periodic kafka my-topic1: Adding first waiter reconcile-from-kafka
+[2021-11-17 02:59:02,469] INFO  <opicOperator:469> [oop-thread-0] 3|periodic kafka my-topic1: Lock acquired
+[2021-11-17 02:59:02,469] INFO  <opicOperator:470> [oop-thread-0] 3|periodic kafka my-topic1: Executing action reconcile-from-kafka on topic my-topic1
+[2021-11-17 02:59:02,475] INFO  <opicOperator:1310> [oop-thread-0] 3|periodic kafka my-topic1: Have private topic for topic my-topic1 in Kafka
+[2021-11-17 02:59:02,485] INFO  <TopicWatcher:72> [oop-thread-0] 3|periodic kafka my-topic1: Concurrent modification in kube: new version 9466134
+[2021-11-17 02:59:02,485] INFO  <KafkaImpl   :100> [oop-thread-0] Getting metadata for topic my-topic1
+[2021-11-17 02:59:02,500] INFO  <opicOperator:535> [oop-thread-0] 3|periodic kafka my-topic1|9466134: Reconciling topic my-topic1, k8sTopic:nonnull, kafkaTopic:nonnull, privateTopic:nonnull
+[2021-11-17 02:59:02,500] INFO  <opicOperator:595> [oop-thread-0] 3|periodic kafka my-topic1|9466134: 3 way diff
+[2021-11-17 02:59:02,500] INFO  <opicOperator:670> [oop-thread-0] 3|periodic kafka my-topic1|9466134: topicStore->kafkaTopic: TopicDiff{differences={}}
+[2021-11-17 02:59:02,500] INFO  <opicOperator:672> [oop-thread-0] 3|periodic kafka my-topic1|9466134: topicStore->k8sTopic: TopicDiff{differences={}}
+[2021-11-17 02:59:02,500] INFO  <opicOperator:681> [oop-thread-0] 3|periodic kafka my-topic1|9466134: Diffs do not conflict, merged diff: TopicDiff{differences={}}
+[2021-11-17 02:59:02,500] INFO  <opicOperator:683> [oop-thread-0] 3|periodic kafka my-topic1|9466134: All three topics are identical
+[2021-11-17 02:59:02,501] INFO  <opicOperator:1377> [oop-thread-0] Success reconciling KafkaTopic hz-kafka/my-topic1
+[2021-11-17 02:59:02,501] INFO  <opicOperator:1313> [oop-thread-0] my-topic1 reconcile success -> succeeded
+[2021-11-17 02:59:02,501] INFO  <opicOperator:472> [oop-thread-0] 3|periodic kafka my-topic1|9466134: Executing handler for action reconcile-from-kafka on topic my-topic1
+[2021-11-17 02:59:02,501] INFO  <opicOperator:947> [oop-thread-0] 3|periodic kafka my-topic1|9466134: There is a KafkaTopic to set status on, rv=9466134, generation=1
+[2021-11-17 02:59:02,502] INFO  <opicOperator:489> [oop-thread-0] 3|periodic kafka my-topic1|9466134: Lock released
+[2021-11-17 02:59:02,502] INFO  <opicOperator:446> [oop-thread-0] 3|periodic kafka my-topic1|9466134: Removing last waiter reconcile-from-kafka
+[2021-11-17 02:59:02,509] INFO  <TopicWatcher:72> [oop-thread-0] 4|periodic kube my-topic1: Concurrent modification in kube: new version 9466134
+[2021-11-17 03:00:32,595] INFO  <opicOperator:1213> [oop-thread-0] Starting periodic  reconciliation
+[2021-11-17 03:00:32,596] INFO  <KafkaImpl   :121> [oop-thread-0] Listing topics
+[2021-11-17 03:00:32,603] INFO  <opicOperator:1289> [oop-thread-1] Reconciling kafka topics [my-topic1]
+[2021-11-17 03:00:32,603] INFO  <opicOperator:457> [oop-thread-1] 5|periodic kafka my-topic1: Queuing action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:00:32,603] INFO  <opicOperator:460> [oop-thread-1] 5|periodic kafka my-topic1: Adding first waiter reconcile-from-kafka
+[2021-11-17 03:00:32,604] INFO  <opicOperator:469> [oop-thread-1] 5|periodic kafka my-topic1: Lock acquired
+[2021-11-17 03:00:32,604] INFO  <opicOperator:470> [oop-thread-1] 5|periodic kafka my-topic1: Executing action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:00:32,611] INFO  <opicOperator:1310> [oop-thread-1] 5|periodic kafka my-topic1: Have private topic for topic my-topic1 in Kafka
+[2021-11-17 03:00:32,618] INFO  <TopicWatcher:72> [oop-thread-1] 5|periodic kafka my-topic1: Concurrent modification in kube: new version 9466134
+[2021-11-17 03:00:32,620] INFO  <KafkaImpl   :100> [oop-thread-1] Getting metadata for topic my-topic1
+[2021-11-17 03:00:32,653] INFO  <opicOperator:535> [oop-thread-1] 5|periodic kafka my-topic1|9466134: Reconciling topic my-topic1, k8sTopic:nonnull, kafkaTopic:nonnull, privateTopic:nonnull
+[2021-11-17 03:00:32,653] INFO  <opicOperator:595> [oop-thread-1] 5|periodic kafka my-topic1|9466134: 3 way diff
+[2021-11-17 03:00:32,653] INFO  <opicOperator:670> [oop-thread-1] 5|periodic kafka my-topic1|9466134: topicStore->kafkaTopic: TopicDiff{differences={}}
+[2021-11-17 03:00:32,653] INFO  <opicOperator:672> [oop-thread-1] 5|periodic kafka my-topic1|9466134: topicStore->k8sTopic: TopicDiff{differences={}}
+[2021-11-17 03:00:32,653] INFO  <opicOperator:681> [oop-thread-1] 5|periodic kafka my-topic1|9466134: Diffs do not conflict, merged diff: TopicDiff{differences={}}
+[2021-11-17 03:00:32,654] INFO  <opicOperator:683> [oop-thread-1] 5|periodic kafka my-topic1|9466134: All three topics are identical
+[2021-11-17 03:00:32,654] INFO  <opicOperator:1377> [oop-thread-1] Success reconciling KafkaTopic hz-kafka/my-topic1
+[2021-11-17 03:00:32,654] INFO  <opicOperator:1313> [oop-thread-1] my-topic1 reconcile success -> succeeded
+[2021-11-17 03:00:32,654] INFO  <opicOperator:472> [oop-thread-1] 5|periodic kafka my-topic1|9466134: Executing handler for action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:00:32,654] INFO  <opicOperator:947> [oop-thread-1] 5|periodic kafka my-topic1|9466134: There is a KafkaTopic to set status on, rv=9466134, generation=1
+[2021-11-17 03:00:32,655] INFO  <opicOperator:489> [oop-thread-1] 5|periodic kafka my-topic1|9466134: Lock released
+[2021-11-17 03:00:32,656] INFO  <opicOperator:446> [oop-thread-1] 5|periodic kafka my-topic1|9466134: Removing last waiter reconcile-from-kafka
+[2021-11-17 03:00:32,663] INFO  <TopicWatcher:72> [oop-thread-1] 6|periodic kube my-topic1: Concurrent modification in kube: new version 9466134
+
+
+[2021-11-17 03:02:02,666] INFO  <opicOperator:1213> [oop-thread-1] Starting periodic  reconciliation
+[2021-11-17 03:02:02,666] INFO  <KafkaImpl   :121> [oop-thread-1] Listing topics
+[2021-11-17 03:02:02,682] INFO  <opicOperator:1289> [oop-thread-0] Reconciling kafka topics [my-topic1]
+[2021-11-17 03:02:02,682] INFO  <opicOperator:457> [oop-thread-0] 7|periodic kafka my-topic1: Queuing action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:02:02,682] INFO  <opicOperator:460> [oop-thread-0] 7|periodic kafka my-topic1: Adding first waiter reconcile-from-kafka
+[2021-11-17 03:02:02,682] INFO  <opicOperator:469> [oop-thread-0] 7|periodic kafka my-topic1: Lock acquired
+[2021-11-17 03:02:02,682] INFO  <opicOperator:470> [oop-thread-0] 7|periodic kafka my-topic1: Executing action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:02:02,688] INFO  <opicOperator:1310> [oop-thread-0] 7|periodic kafka my-topic1: Have private topic for topic my-topic1 in Kafka
+[2021-11-17 03:02:02,700] INFO  <TopicWatcher:72> [oop-thread-0] 7|periodic kafka my-topic1: Concurrent modification in kube: new version 9466134
+[2021-11-17 03:02:02,700] INFO  <KafkaImpl   :100> [oop-thread-0] Getting metadata for topic my-topic1
+[2021-11-17 03:02:02,725] INFO  <opicOperator:535> [oop-thread-0] 7|periodic kafka my-topic1|9466134: Reconciling topic my-topic1, k8sTopic:nonnull, kafkaTopic:nonnull, privateTopic:nonnull
+[2021-11-17 03:02:02,725] INFO  <opicOperator:595> [oop-thread-0] 7|periodic kafka my-topic1|9466134: 3 way diff
+[2021-11-17 03:02:02,726] INFO  <opicOperator:670> [oop-thread-0] 7|periodic kafka my-topic1|9466134: topicStore->kafkaTopic: TopicDiff{differences={}}
+[2021-11-17 03:02:02,726] INFO  <opicOperator:672> [oop-thread-0] 7|periodic kafka my-topic1|9466134: topicStore->k8sTopic: TopicDiff{differences={}}
+[2021-11-17 03:02:02,726] INFO  <opicOperator:681> [oop-thread-0] 7|periodic kafka my-topic1|9466134: Diffs do not conflict, merged diff: TopicDiff{differences={}}
+[2021-11-17 03:02:02,726] INFO  <opicOperator:683> [oop-thread-0] 7|periodic kafka my-topic1|9466134: All three topics are identical
+[2021-11-17 03:02:02,726] INFO  <opicOperator:1377> [oop-thread-0] Success reconciling KafkaTopic hz-kafka/my-topic1
+[2021-11-17 03:02:02,726] INFO  <opicOperator:1313> [oop-thread-0] my-topic1 reconcile success -> succeeded
+[2021-11-17 03:02:02,726] INFO  <opicOperator:472> [oop-thread-0] 7|periodic kafka my-topic1|9466134: Executing handler for action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:02:02,727] INFO  <opicOperator:947> [oop-thread-0] 7|periodic kafka my-topic1|9466134: There is a KafkaTopic to set status on, rv=9466134, generation=1
+[2021-11-17 03:02:02,727] INFO  <opicOperator:489> [oop-thread-0] 7|periodic kafka my-topic1|9466134: Lock released
+[2021-11-17 03:02:02,728] INFO  <opicOperator:446> [oop-thread-0] 7|periodic kafka my-topic1|9466134: Removing last waiter reconcile-from-kafka
+[2021-11-17 03:02:02,740] INFO  <TopicWatcher:72> [oop-thread-0] 8|periodic kube my-topic1: Concurrent modification in kube: new version 9466134
+
+
+[2021-11-17 03:03:32,830] INFO  <opicOperator:1213> [oop-thread-0] Starting periodic  reconciliation
+[2021-11-17 03:03:32,830] INFO  <KafkaImpl   :121> [oop-thread-0] Listing topics
+[2021-11-17 03:03:32,840] INFO  <opicOperator:1289> [oop-thread-1] Reconciling kafka topics [my-topic1]
+[2021-11-17 03:03:32,840] INFO  <opicOperator:457> [oop-thread-1] 9|periodic kafka my-topic1: Queuing action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:03:32,840] INFO  <opicOperator:460> [oop-thread-1] 9|periodic kafka my-topic1: Adding first waiter reconcile-from-kafka
+[2021-11-17 03:03:32,840] INFO  <opicOperator:469> [oop-thread-1] 9|periodic kafka my-topic1: Lock acquired
+[2021-11-17 03:03:32,840] INFO  <opicOperator:470> [oop-thread-1] 9|periodic kafka my-topic1: Executing action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:03:32,844] INFO  <opicOperator:1310> [oop-thread-1] 9|periodic kafka my-topic1: Have private topic for topic my-topic1 in Kafka
+[2021-11-17 03:03:32,852] INFO  <TopicWatcher:72> [oop-thread-1] 9|periodic kafka my-topic1: Concurrent modification in kube: new version 9466134
+[2021-11-17 03:03:32,852] INFO  <KafkaImpl   :100> [oop-thread-1] Getting metadata for topic my-topic1
+[2021-11-17 03:03:32,863] INFO  <opicOperator:535> [oop-thread-1] 9|periodic kafka my-topic1|9466134: Reconciling topic my-topic1, k8sTopic:nonnull, kafkaTopic:nonnull, privateTopic:nonnull
+[2021-11-17 03:03:32,863] INFO  <opicOperator:595> [oop-thread-1] 9|periodic kafka my-topic1|9466134: 3 way diff
+[2021-11-17 03:03:32,864] INFO  <opicOperator:670> [oop-thread-1] 9|periodic kafka my-topic1|9466134: topicStore->kafkaTopic: TopicDiff{differences={}}
+[2021-11-17 03:03:32,864] INFO  <opicOperator:672> [oop-thread-1] 9|periodic kafka my-topic1|9466134: topicStore->k8sTopic: TopicDiff{differences={}}
+[2021-11-17 03:03:32,864] INFO  <opicOperator:681> [oop-thread-1] 9|periodic kafka my-topic1|9466134: Diffs do not conflict, merged diff: TopicDiff{differences={}}
+[2021-11-17 03:03:32,864] INFO  <opicOperator:683> [oop-thread-1] 9|periodic kafka my-topic1|9466134: All three topics are identical
+[2021-11-17 03:03:32,864] INFO  <opicOperator:1377> [oop-thread-1] Success reconciling KafkaTopic hz-kafka/my-topic1
+[2021-11-17 03:03:32,864] INFO  <opicOperator:1313> [oop-thread-1] my-topic1 reconcile success -> succeeded
+[2021-11-17 03:03:32,864] INFO  <opicOperator:472> [oop-thread-1] 9|periodic kafka my-topic1|9466134: Executing handler for action reconcile-from-kafka on topic my-topic1
+[2021-11-17 03:03:32,864] INFO  <opicOperator:947> [oop-thread-1] 9|periodic kafka my-topic1|9466134: There is a KafkaTopic to set status on, rv=9466134, generation=1
+[2021-11-17 03:03:32,870] INFO  <opicOperator:489> [oop-thread-1] 9|periodic kafka my-topic1|9466134: Lock released
+[2021-11-17 03:03:32,870] INFO  <opicOperator:446> [oop-thread-1] 9|periodic kafka my-topic1|9466134: Removing last waiter reconcile-from-kafka
+[2021-11-17 03:03:32,877] INFO  <TopicWatcher:72> [oop-thread-1] 10|periodic kube my-topic1: Concurrent modification in kube: new version 9466134
+
+
+
+
+
+
+

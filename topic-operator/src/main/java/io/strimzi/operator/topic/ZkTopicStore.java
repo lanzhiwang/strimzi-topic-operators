@@ -31,9 +31,10 @@ public class ZkTopicStore implements TopicStore {
 
     private final List<ACL> acl;
 
+    // ZkTopicStore topicStore = new ZkTopicStore(zk, topicsPath);
     public ZkTopicStore(Zk zk, String topicsPath) {
         this.zk = zk;
-        this.topicsPath = topicsPath;
+        this.topicsPath = topicsPath;  // /strimzi/topics
         acl = new AclBuilder().setWorld(AclBuilder.Permission.values()).build();
         createStrimziTopicsPath();
     }
@@ -57,15 +58,15 @@ public class ZkTopicStore implements TopicStore {
         });
     }
 
-
     private String getTopicPath(TopicName name) {
         return topicsPath + "/" + name;
     }
 
+    // topicStore.read(topicName)
     @Override
     public Future<Topic> read(TopicName topicName) {
         Promise<Topic> handler = Promise.promise();
-        String topicPath = getTopicPath(topicName);
+        String topicPath = getTopicPath(topicName); // /strimzi/topics/my-topic1
         zk.getData(topicPath, result -> {
             final AsyncResult<Topic> fut;
             if (result.succeeded()) {
@@ -82,11 +83,12 @@ public class ZkTopicStore implements TopicStore {
         return handler.future();
     }
 
+    // topicStore.create(topic)
     @Override
     public Future<Void> create(Topic topic) {
         Promise<Void> handler = Promise.promise();
         byte[] data = TopicSerialization.toJson(topic);
-        String topicPath = getTopicPath(topic.getTopicName());
+        String topicPath = getTopicPath(topic.getTopicName());  // /strimzi/topics/my-topic1
         LOGGER.debug("create znode {}", topicPath);
         zk.create(topicPath, data, acl, CreateMode.PERSISTENT, result -> {
             if (result.failed() && result.cause() instanceof ZkNodeExistsException) {

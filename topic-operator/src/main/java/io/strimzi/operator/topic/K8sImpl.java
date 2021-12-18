@@ -35,10 +35,18 @@ public class K8sImpl implements K8s {
 
     private final Vertx vertx;
 
+    // this.k8s = new K8sImpl(vertx, kubeClient, labels, namespace);
     public K8sImpl(Vertx vertx, KubernetesClient client, Labels labels, String namespace) {
         this.vertx = vertx;
         this.client = client;
-        this.crdOperator = new CrdOperator<>(vertx, client, KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class, Crds.kafkaTopic());
+        this.crdOperator = new CrdOperator<>(
+            vertx,
+            client,
+            KafkaTopic.class,
+            KafkaTopicList.class,
+            DoneableKafkaTopic.class,
+            Crds.kafkaTopic()
+        );
         this.labels = labels;
         this.namespace = namespace;
     }
@@ -117,6 +125,7 @@ public class K8sImpl implements K8s {
         return crdOperator.listAsync(namespace, io.strimzi.operator.common.model.Labels.fromMap(labels.labels()));
     }
 
+    // k8s.getFromName(new ResourceName(modifiedTopic))
     @Override
     public Future<KafkaTopic> getFromName(ResourceName resourceName) {
         return crdOperator.getAsync(namespace, resourceName.toString());

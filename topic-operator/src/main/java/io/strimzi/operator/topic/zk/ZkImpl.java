@@ -28,11 +28,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ZkImpl implements Zk {
 
     private final static Logger LOGGER = LogManager.getLogger(ZkImpl.class);
+
     private static final <T> Handler<AsyncResult<T>> log(String msg) {
         return ignored -> {
             LOGGER.trace("{} returned {}", msg, ignored);
         };
     }
+
     private final Vertx vertx;
     private final ZkClient zookeeper;
 
@@ -46,69 +48,90 @@ public class ZkImpl implements Zk {
         this.zookeeper = zkClient;
     }
 
+    private WorkerExecutor workerPool() {
+        return vertx.createSharedWorkerExecutor(getClass().getName(), 4);
+    }
 
     @Override
     public Zk create(String path, byte[] data, List<ACL> acls, CreateMode createMode, Handler<AsyncResult<Void>> handler) {
-        workerPool().executeBlocking(
-            future -> {
-                try {
-                    zookeeper.create(path, data == null ? new byte[0] : data, acls, createMode);
-                    future.complete();
-                } catch (Throwable t) {
-                    future.fail(t);
-                }
-            },
-            handler);
+        workerPool().executeBlocking(future -> {
+            try {
+                 zookeeper.create(path, data == null ? new byte[0] : data, acls, createMode);
+                future.complete();
+            } catch (Throwable t) {
+                future.fail(t);
+            }
+        }, handler);
         return this;
     }
 
     @Override
     public Zk setData(String path, byte[] data, int version, Handler<AsyncResult<Void>> handler) {
-        workerPool().executeBlocking(
-            future -> {
-                try {
-                    zookeeper.writeData(path, data, version);
-                    future.complete();
-                } catch (Throwable t) {
-                    future.fail(t);
-                }
-            },
-            handler);
+        workerPool().executeBlocking(future -> {
+            try {
+                zookeeper.writeData(path, data, version);
+                future.complete();
+            } catch (Throwable t) {
+                future.fail(t);
+            }
+        }, handler);
         return this;
     }
 
     @Override
     public Zk disconnect(Handler<AsyncResult<Void>> handler) {
-
-        workerPool().executeBlocking(
-            future -> {
-                try {
-                    zookeeper.close();
-                    future.complete();
-                } catch (Throwable t) {
-                    future.fail(t);
-                }
-            },
-            handler);
+        workerPool().executeBlocking(future -> {
+            try {
+                zookeeper.close();
+                future.complete();
+            } catch (Throwable t) {
+                future.fail(t);
+            }
+        }, handle);
         return this;
     }
 
     @Override
     public Zk getData(String path, Handler<AsyncResult<byte[]>> handler) {
-        workerPool().executeBlocking(
-            future -> {
-                try {
-                    future.complete(zookeeper.readData(path));
-                } catch (Throwable t) {
-                    future.fail(t);
+        workerPool().executeBlocking(future -> {
+            try {
+                future.complete(zookeeper.readData(path));
+            } catch (Throwable t) {
+                future.fail(t);
+            }
+        }, handler);
+        return this;
+    }
+
+    @Override
+    public Zk delete(String path, int version, Handler<AsyncResult<Void>> handler) {
+        workerPool().executeBlocking(future -> {
+            try {
+                if (zookeeper.delete(path, version)) {
+                    future.complete();
+                } else {
+                    future.fail(new ZkNoNodeException());
                 }
-            },
-            handler);
+            } catch (Throwable t) {
+                future.fail(t);
+            }
+        }, handler);
+        return this;
+    }
+
+    @Override
+    public Zk children(String path, Handler<AsyncResult<List<String>>> handler) {
+        workerPool().executeBlocking(future -> {
+            try {
+                future.complete(zookeeper.getChildren(path));
+            } catch (Throwable t) {
+                future.fail(t);
+            }
+        }, handler);
         return this;
     }
 
     static class DataWatchAdapter implements IZkDataListener {
-
         private final Handler<AsyncResult<byte[]>> watcher;
 
         public DataWatchAdapter(Handler<AsyncResult<byte[]>> watcher) {
@@ -122,7 +145,6 @@ public class ZkImpl implements Zk {
 
         @Override
         public void handleDataDeleted(String dataPath) throws Exception {
-
         }
     }
 
@@ -147,63 +169,25 @@ public class ZkImpl implements Zk {
                 } else {
                     result.fail(ar.cause());
                 }
-            });
+            }
+        );
         return result.future();
     }
 
     @Override
     public Zk unwatchData(String path) {
-        workerPool().executeBlocking(
-            future -> {
-                try {
-                    IZkDataListener listener = dataWatches.remove(path);
-                    if (listener != null) {
-                        zookeeper.unsubscribeDataChanges(path, listener);
-                    }
-                    future.complete();
-                } catch (Throwable t) {
-                    future.fail(t);
+        workerPool().executeBlocking(future -> {
+            try {
+                IZkDataListener listener = dataWatches.remove(path);
+                if (listener != null) {
+                    zookeeper.unsubscribeDataChanges(path, listener);
                 }
-            },
-            log("unwatchData"));
+                future.complete();
+            } catch (Throwable t) {
+                future.fail(t);
+            }
+        }, log("unwatchData"));
         return this;
-    }
-
-    @Override
-    public Zk delete(String path, int version, Handler<AsyncResult<Void>> handler) {
-        workerPool().executeBlocking(
-            future -> {
-                try {
-                    if (zookeeper.delete(path, version)) {
-                        future.complete();
-                    } else {
-                        future.fail(new ZkNoNodeException());
-                    }
-                } catch (Throwable t) {
-                    future.fail(t);
-                }
-            },
-            handler);
-        return this;
-    }
-
-    private WorkerExecutor workerPool() {
-        return vertx.createSharedWorkerExecutor(getClass().getName(), 4);
-    }
-
-    @Override
-    public Zk children(String path, Handler<AsyncResult<List<String>>> handler) {
-        workerPool().executeBlocking(
-            future -> {
-                try {
-                    future.complete(zookeeper.getChildren(path));
-                } catch (Throwable t) {
-                    future.fail(t);
-                }
-            },
-            handler);
-        return this;
-
     }
 
     @Override
@@ -227,26 +211,24 @@ public class ZkImpl implements Zk {
                 } else {
                     result.fail(ar.cause());
                 }
-            });
+            }
+        );
         return result.future();
     }
 
     @Override
     public Zk unwatchChildren(String path) {
-        workerPool().executeBlocking(
-            future -> {
-                try {
-                    IZkChildListener listener = childWatches.remove(path);
-                    if (listener != null) {
-                        zookeeper.unsubscribeChildChanges(path, listener);
-                    }
-                    future.complete();
-                } catch (Throwable t) {
-                    future.fail(t);
+        workerPool().executeBlocking(future -> {
+            try {
+                IZkChildListener listener = childWatches.remove(path);
+                if (listener != null) {
+                    zookeeper.unsubscribeChildChanges(path, listener);
                 }
-            },
-            log("unwatchChildren"));
+                future.complete();
+            } catch (Throwable t) {
+                future.fail(t);
+            }
+        }, log("unwatchChildren"));
         return this;
     }
-
 }

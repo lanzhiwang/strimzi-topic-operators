@@ -27,6 +27,15 @@ public class Main {
 
         KubernetesClient client = new DefaultKubernetesClient();
 
+        /*
+        Init-kafka started with config: InitWriterConfig(
+            nodeName=192.168.132.209,
+            rackTopologyKey=null,
+            externalAddress=true,
+            initFolder=/opt/kafka/init,
+            addressType=null
+        )
+        */
         log.info("Init-kafka started with config: {}", config);
 
         InitWriter writer = new InitWriter(client, config);

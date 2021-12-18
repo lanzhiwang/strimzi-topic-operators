@@ -28,6 +28,7 @@ public class Main {
     private final static Logger LOGGER = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        // TopicOperator 0.18.0 is starting
         LOGGER.info("TopicOperator {} is starting", Main.class.getPackage().getImplementationVersion());
         Main main = new Main();
         main.run();
@@ -50,9 +51,12 @@ public class Main {
         DefaultKubernetesClient kubeClient = new DefaultKubernetesClient();
         Crds.registerCustomKinds();
         VertxOptions options = new VertxOptions().setMetricsOptions(
-                new MicrometerMetricsOptions()
-                        .setPrometheusOptions(new VertxPrometheusOptions().setEnabled(true))
-                        .setEnabled(true));
+            new MicrometerMetricsOptions()
+                .setPrometheusOptions(
+                    new VertxPrometheusOptions().setEnabled(true)
+                )
+                .setEnabled(true)
+        );
         Vertx vertx = Vertx.vertx(options);
         Session session = new Session(kubeClient, config);
         vertx.deployVerticle(session, ar -> {

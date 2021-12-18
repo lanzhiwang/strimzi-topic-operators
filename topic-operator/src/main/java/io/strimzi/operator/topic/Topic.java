@@ -20,48 +20,108 @@ public class Topic {
         private ObjectMeta metadata = new ObjectMeta();
         private ResourceName resourceName;
 
-        public Builder() {
-
-        }
+        public Builder() {}
 
         public Builder(String topicName, int numPartitions) {
-            this(new TopicName(topicName), numPartitions, (short) -1, null, null);
+            this(
+                new TopicName(topicName),
+                numPartitions,
+                (short) -1,
+                null,
+                null
+            );
         }
 
         public Builder(TopicName topicName, int numPartitions) {
-            this(topicName, numPartitions, (short) -1, null, null);
+            this(
+                topicName,
+                numPartitions,
+                (short) -1,
+                null,
+                null
+            );
         }
 
         public Builder(String topicName, int numPartitions, Map<String, String> config) {
-            this(new TopicName(topicName), numPartitions, (short) -1, config, null);
+            this(
+                new TopicName(topicName),
+                numPartitions,
+                (short) -1,
+                config,
+                null
+            );
         }
 
         public Builder(TopicName topicName, int numPartitions, Map<String, String> config) {
-            this(topicName, numPartitions, (short) -1, config, null);
+            this(
+                topicName,
+                numPartitions,
+                (short) -1,
+                config,
+                null
+            );
         }
 
         public Builder(String topicName, int numPartitions, short numReplicas, Map<String, String> config) {
-            this(new TopicName(topicName), numPartitions, numReplicas, config, null);
+            this(
+                new TopicName(topicName),
+                numPartitions,
+                numReplicas,
+                config,
+                null
+            );
         }
 
         public Builder(TopicName topicName, int numPartitions, short numReplicas, Map<String, String> config) {
-            this(topicName, topicName.asKubeName(), numPartitions, numReplicas, config, null);
+            this(
+                topicName,
+                topicName.asKubeName(),
+                numPartitions,
+                numReplicas,
+                config,
+                null
+            );
         }
 
         public Builder(String topicName, int numPartitions, short numReplicas, Map<String, String> config, ObjectMeta metadata) {
-            this(new TopicName(topicName), numPartitions, numReplicas, config, metadata);
+            this(
+                new TopicName(topicName),
+                numPartitions,
+                numReplicas,
+                config,
+                metadata
+            );
         }
 
         public Builder(TopicName topicName, int numPartitions, short numReplicas, Map<String, String> config, ObjectMeta metadata) {
-            this(topicName, topicName.asKubeName(), numPartitions, numReplicas, config, metadata);
+            this(
+                topicName,
+                topicName.asKubeName(),
+                numPartitions,
+                numReplicas,
+                config,
+                metadata
+            );
         }
 
         public Builder(String topicName, int numPartitions, Map<String, String> config, ObjectMeta metadata) {
-            this(new TopicName(topicName), numPartitions, (short) -1, config, metadata);
+            this(
+                new TopicName(topicName),
+                numPartitions,
+                (short) -1,
+                config,
+                metadata
+            );
         }
 
         public Builder(TopicName topicName, int numPartitions, Map<String, String> config, ObjectMeta metadata) {
-            this(topicName, numPartitions, (short) -1, config, metadata);
+            this(
+                topicName,
+                numPartitions,
+                (short) -1,
+                config,
+                metadata
+            );
         }
 
         public Builder(TopicName topicName, ResourceName resourceName, int numPartitions, short numReplicas, Map<String, String> config, ObjectMeta metadata) {
@@ -152,6 +212,15 @@ public class Topic {
 
     private final short numReplicas;
 
+    private Topic(TopicName topicName, ResourceName resourceName, int numPartitions, short numReplicas, Map<String, String> config, ObjectMeta metadata) {
+        this.topicName = topicName;
+        this.resourceName = resourceName;
+        this.numPartitions = numPartitions;
+        this.numReplicas = numReplicas;
+        this.config = Collections.unmodifiableMap(config);
+        this.metadata = metadata;
+    }
+
     public TopicName getTopicName() {
         return topicName;
     }
@@ -182,15 +251,6 @@ public class Topic {
 
     public ObjectMeta getMetadata() {
         return metadata;
-    }
-
-    private Topic(TopicName topicName, ResourceName resourceName, int numPartitions, short numReplicas, Map<String, String> config, ObjectMeta metadata) {
-        this.topicName = topicName;
-        this.resourceName = resourceName;
-        this.numPartitions = numPartitions;
-        this.numReplicas = numReplicas;
-        this.config = Collections.unmodifiableMap(config);
-        this.metadata = metadata;
     }
 
     @Override

@@ -40,6 +40,8 @@ class K8sTopicWatcher implements Watcher<KafkaTopic> {
                 LOGGER.debug("Ignoring initial event for {} {} during initial reconcile", kind, name);
                 return;
             }
+
+            // 0|kube +my-topic1|9466112: event ADDED on resource my-topic1 generation=1, labels={strimzi.io/cluster=my-cluster}
             LOGGER.info("{}: event {} on resource {} generation={}, labels={}", logContext, action, name,
                     metadata.getGeneration(), labels);
             Handler<AsyncResult<Void>> resultHandler = ar -> {

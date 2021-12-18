@@ -44,6 +44,7 @@ public class KafkaImpl implements Kafka {
 
     private volatile boolean stopped = false;
 
+    // this.kafka = new KafkaImpl(adminClient, vertx);
     public KafkaImpl(AdminClient adminClient, Vertx vertx) {
         this.adminClient = adminClient;
         this.vertx = vertx;
@@ -75,6 +76,7 @@ public class KafkaImpl implements Kafka {
         private final Handler<AsyncResult<T>> handler;
         private final String name;
 
+        // new UniWork<>("createTopic", future, handler)
         public UniWork(String name, KafkaFuture<T> future, Handler<AsyncResult<T>> handler) {
             if (future == null) {
                 throw new NullPointerException();
@@ -131,6 +133,7 @@ public class KafkaImpl implements Kafka {
         private final Handler<AsyncResult<TopicMetadata>> handler;
         private boolean handled = false;
 
+        // new MetadataWork(descriptionFuture, configFuture, result -> handler.handle(result))
         public MetadataWork(KafkaFuture<TopicDescription> descFuture,
                             KafkaFuture<Config> configFuture, Handler<AsyncResult<TopicMetadata>> handler) {
             if (descFuture == null) {
@@ -205,9 +208,15 @@ public class KafkaImpl implements Kafka {
     }
 
     /**
-     * Queue a future and callback. The callback will be invoked (on a separate thread)
-     * when the future is ready.
-     */
+    queueWork(
+        new MetadataWork(
+            descriptionFuture,
+            configFuture,
+            result -> handler.handle(result)
+        )
+    );
+    queueWork(new UniWork<>("createTopic", future, handler));
+    */
     protected void queueWork(Work work) {
         LOGGER.trace("Queuing work {} for immediate execution", work);
         vertx.runOnContext(work);
@@ -250,22 +259,27 @@ public class KafkaImpl implements Kafka {
         return handler.future();
     }
 
-    /**
-     * Get a topic config via the Kafka AdminClient API, calling the given handler
-     * (in a different thread) with the result.
-     */
+
+    // kafka.topicMetadata(topicName)
     @Override
     public Future<TopicMetadata> topicMetadata(TopicName topicName) {
         Promise<TopicMetadata> handler = Promise.promise();
+        // Getting metadata for topic my-topic1
         LOGGER.debug("Getting metadata for topic {}", topicName);
         ConfigResource resource = new ConfigResource(ConfigResource.Type.TOPIC, topicName.toString());
         KafkaFuture<TopicDescription> descriptionFuture = adminClient.describeTopics(
-                Collections.singleton(topicName.toString())).values().get(topicName.toString());
+                Collections.singleton(topicName.toString())
+        ).values().get(topicName.toString());
         KafkaFuture<Config> configFuture = adminClient.describeConfigs(
-                Collections.singleton(resource)).values().get(resource);
-        queueWork(new MetadataWork(descriptionFuture,
-            configFuture,
-            result -> handler.handle(result)));
+                Collections.singleton(resource)
+        ).values().get(resource);
+        queueWork(
+            new MetadataWork(
+                descriptionFuture,
+                configFuture,
+                result -> handler.handle(result)
+            )
+        );
         return handler.future();
     }
 
@@ -296,15 +310,29 @@ public class KafkaImpl implements Kafka {
     /**
      * Create a new topic via the Kafka AdminClient API, calling the given handler
      * (in a different thread) with the result.
+     createTopic(
+         Topic topic  operators 内部表示的 topic
+     )
      */
     @Override
     public Future<Void> createTopic(Topic topic) {
         Promise<Void> handler = Promise.promise();
+        // 将 operators 内部表示的 topic 转为 kafka 本身的 topic 表示
         NewTopic newTopic = TopicSerialization.toNewTopic(topic, null);
 
+        /*
+        Creating topic (
+            name=my-topic1,
+            numPartitions=10,
+            replicationFactor=3,
+            replicasAssignments=null,
+            configs={retention.ms=604800000, segment.bytes=1073741824}
+        )
+        */
         LOGGER.debug("Creating topic {}", newTopic);
         KafkaFuture<Void> future = adminClient.createTopics(
-                Collections.singleton(newTopic)).values().get(newTopic.name());
+                Collections.singleton(newTopic)
+        ).values().get(newTopic.name());
         queueWork(new UniWork<>("createTopic", future, handler));
         return handler.future();
     }

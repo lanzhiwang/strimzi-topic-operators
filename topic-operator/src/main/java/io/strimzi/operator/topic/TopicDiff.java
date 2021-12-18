@@ -208,17 +208,13 @@ class TopicDiff {
 
     private final Map<String, Difference> differences;
 
+    // TopicDiff(differences, target.getMetadata());
     private TopicDiff(Map<String, Difference> differences, ObjectMeta objectMeta) {
         this.differences = differences;
         this.objectMeta = objectMeta;
     }
 
-    /**
-     * Return the TopicDiff that will transform the given source topic into the given target topic.
-     * @param source
-     * @param target
-     * @return The difference between the source and target.
-     */
+    // TopicDiff oursKafka = TopicDiff.diff(privateTopic, kafkaTopic);
     public static TopicDiff diff(Topic source, Topic target) {
         Objects.requireNonNull(source);
         Objects.requireNonNull(target);
